@@ -70,37 +70,37 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
        
           <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-6 md:p-8 rounded-lg shadow-lg">
-            <h3 className="text-lg md:text-xl font-semibold mb-4">Smart Door Lock/Unlock</h3>
+            <h3 className="text-lg md:text-xl font-semibold mb-4">Smart recognition at door</h3>
             <p className="text-sm md:text-base">
               Control the security of your home remotely with our smart door lock system powered by ESP32. Manage access with ease through your smartphone and enhance your home’s security.
             </p>
           </div>
    
           <div className="bg-gradient-to-r from-green-500 to-teal-500 p-6 md:p-8 rounded-lg shadow-lg">
-            <h3 className="text-lg md:text-xl font-semibold mb-4">Recipe Suggestor Based on Calories</h3>
+            <h3 className="text-lg md:text-xl font-semibold mb-4">Smart Cooking Assistant</h3>
             <p className="text-sm md:text-base">
               Manage your diet with ease. Our smart home automation system suggests recipes based on your calorie needs, helping you maintain a balanced diet effortlessly.
             </p>
           </div>
    
           <div className="bg-gradient-to-r from-red-500 to-orange-500 p-6 md:p-8 rounded-lg shadow-lg">
-            <h3 className="text-lg md:text-xl font-semibold mb-4">Smart Energy Management</h3>
+            <h3 className="text-lg md:text-xl font-semibold mb-4">Energy Usage Breakdown</h3>
             <p className="text-sm md:text-base">
               Monitor and control your home’s energy consumption through smart plugs and sensors, ensuring efficiency and reducing electricity bills.
             </p>
           </div>
    
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-6 md:p-8 rounded-lg shadow-lg">
-            <h3 className="text-lg md:text-xl font-semibold mb-4">Home Environment Monitoring</h3>
+            <h3 className="text-lg md:text-xl font-semibold mb-4">Smart Water Dispenser</h3>
             <p className="text-sm md:text-base">
-              Keep track of your home's air quality, temperature, and humidity with sensors that notify you when adjustments are needed for a healthier living space.
+              The Smart Water Dispenser uses an integrated IR sensor to detect when a glass is placed underneath, automatically dispensing water without the need to touch any buttons, providing a seamless and hygienic experience.
             </p>
           </div>
     
           <div className="bg-gradient-to-r from-yellow-500 to-green-500 p-6 md:p-8 rounded-lg shadow-lg">
-            <h3 className="text-lg md:text-xl font-semibold mb-4">Automated Lighting Control</h3>
+            <h3 className="text-lg md:text-xl font-semibold mb-4">Control appliances remotely</h3>
             <p className="text-sm md:text-base">
-              Automate your home lighting based on occupancy or time of day, enhancing convenience and saving energy.
+              Remotely manage your home appliances from anywhere, allowing you to turn devices on or off, adjust settings, and monitor usage, all from your smartphone for ultimate convenience and energy efficiency.
             </p>
           </div>
     
