@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
 import axios from 'axios';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Mail, Lock, Loader2, Home } from 'lucide-react';
+import { useState } from 'react';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -7,26 +12,18 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
-  const [showLoginOption, setShowLoginOption] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
     setUsername('');
-    setShowLoginOption(false);
 
     try {
       const response = await axios.post('http://localhost:8000/api/v1/auth/admin/register', { email, password });
-
-      // Extracting username and success message from response
       setUsername(response.data.user.username);
       setMessage(response.data.message);
 
-      // Showing the login option after successful registration
-      setShowLoginOption(true);
-
-      // Clearing inputs
       setEmail('');
       setPassword('');
     } catch (error) {
@@ -37,61 +34,101 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-lg w-96">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Sign Up</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700 font-medium mb-2">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"
-          >
-            {loading ? 'Signing Up...' : 'Sign Up'}
-          </button>
-        </form>
-        {message && (
-          <p className={`mt-4 text-sm font-medium ${message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
-            {message}
-          </p>
-        )}
-        {username && (
-          <p className="mt-2 text-sm font-medium text-blue-600">
-            Your generated username: <strong>{username}</strong>
-          </p>
-        )}
-        {showLoginOption && (
-          <div className="mt-4">
-            <p className="text-sm text-gray-700">Already have an account?</p>
-            <a
-              href="/login"
-              className="text-blue-500 font-medium hover:underline"
-            >
-              Go to Login
-            </a>
-          </div>
-        )}
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-600 to-blue-700">
+      <div className="flex justify-end p-4">
+        <Button
+          variant="ghost"
+          className="flex items-center space-x-2 text-white"
+          onClick={() => window.location.href = '/'}
+        >
+          <Home className="w-5 h-5" />
+          <span>Go to Home</span>
+        </Button>
+      </div>
+      <div className="flex items-center justify-center flex-grow">
+        <Card className="w-96 shadow-xl">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
+              Create an Account
+            </CardTitle>
+            <CardDescription className="text-center">
+              Enter your email and password to register
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="pl-9"
+                    placeholder="Enter your email"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pl-9"
+                    placeholder="Enter your password"
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing Up...
+                  </>
+                ) : (
+                  'Sign Up'
+                )}
+              </Button>
+            </form>
+
+            {message && (
+              <div className={`mt-4 text-sm font-medium ${message.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+                {message}
+              </div>
+            )}
+
+            {username && (
+              <div className="mt-2 text-sm font-medium text-primary">
+                Your generated username: <strong>{username}</strong>
+              </div>
+            )}
+
+            <div className="mt-4 text-center">
+              <p className="text-l text-muted-foreground">Already have an account?</p>
+              <Button
+                variant="link"
+                className="font-medium"
+                onClick={() => window.location.href = '/login'}
+              >
+                Go to Login
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
