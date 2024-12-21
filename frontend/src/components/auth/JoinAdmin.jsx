@@ -1,40 +1,52 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { User, Search, ArrowRight, Building } from 'lucide-react';
-import axios from 'axios';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { User, Search, ArrowRight, Building } from "lucide-react";
+import axios from "axios";
 
 const JoinAdmin = () => {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState(null);
-  const [roomFound, setRoomFound] = useState(null);  // Track room found status
+  const [roomFound, setRoomFound] = useState(null); // Track room found status
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleFindRoom = async () => {
     if (!username.trim()) {
-      toast({ description: 'Username is required.', variant: 'destructive' });
+      toast({ description: "Username is required.", variant: "destructive" });
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/rooms/getRoomIDbyUsername', { username });
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/rooms/getRoomIDbyUsername",
+        { username }
+      );
       const data = response.data;
 
       if (data.roomId) {
         setRoomId(data.roomId);
-        setRoomFound(true);  // Room found
-        toast({ description: 'Room ID fetched successfully.', variant: 'success' });
+        setRoomFound(true); // Room found
+        toast({ description: "Room ID fetched successfully.", variant: "success" });
       } else {
-        setRoomFound(false);  // No room found
+        setRoomFound(false); // No room found
         setRoomId(null);
       }
     } catch (error) {
-      toast({ description: error.message || 'An error occurred', variant: 'destructive' });
-      setRoomFound(false);  // Error handling, set roomFound to false
+      toast({
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+      setRoomFound(false); // Error handling, set roomFound to false
       setRoomId(null);
     }
   };
@@ -45,13 +57,26 @@ const JoinAdmin = () => {
     }
   };
 
+  const handleHomeClick = () => {
+    navigate("/");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 relative">
+      {/* Top-right Go to Home Button */}
+      <div className="absolute top-4 right-4">
+        <Button
+          variant="ghost"
+          className="text-white hover:text-gray-200 hover:bg-gray-700 px-4 py-2 rounded transition-all duration-200 ease-in-out"
+          onClick={handleHomeClick}
+        >
+          Go to Home
+        </Button>
+      </div>
+
       <Card className="w-96 shadow-xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Find Your Room
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Find Your Room</CardTitle>
           <CardDescription className="text-center">
             Enter your username to find your associated room
           </CardDescription>
@@ -71,10 +96,7 @@ const JoinAdmin = () => {
             </div>
           </div>
 
-          <Button 
-            onClick={handleFindRoom}
-            className="w-full"
-          >
+          <Button onClick={handleFindRoom} className="w-full">
             <Search className="mr-2 h-4 w-4" />
             Find Room
           </Button>
@@ -87,7 +109,7 @@ const JoinAdmin = () => {
                   <Building className="h-4 w-4" />
                   <span className="font-medium">Room Found!</span>
                 </div>
-                
+
                 <div className="p-3 bg-white rounded-lg border border-green-200">
                   <p className="text-sm text-muted-foreground mb-1">Room ID</p>
                   <p className="font-medium">{roomId}</p>
@@ -113,16 +135,14 @@ const JoinAdmin = () => {
                   <Building className="h-4 w-4" />
                   <span className="font-medium">No Room Found!</span>
                 </div>
-                
+
                 <div className="p-3 bg-white rounded-lg border border-red-200">
-                  <p className="text-sm text-muted-foreground mb-1">No room associated with this username.</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    No room associated with this username.
+                  </p>
                 </div>
 
-                <Button
-                  disabled
-                  className="w-full"
-                  variant="outline"
-                >
+                <Button disabled className="w-full" variant="outline">
                   No Room Available
                 </Button>
               </CardContent>
