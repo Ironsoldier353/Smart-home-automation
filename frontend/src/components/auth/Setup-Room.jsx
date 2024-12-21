@@ -1,31 +1,75 @@
-import React from 'react';
+import { UserPlus, LogIn } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const SetupRoom = () => {
   const handleSignUpClick = () => {
-    window.location.href = '/signup';  // Redirect to the Sign Up page
+    window.location.href = '/signup';
   };
 
   const handleLoginClick = () => {
-    window.location.href = '/login';   // Redirect to the Login page
+    window.location.href = '/login';
+  };
+
+  const handleHomeClick = () => {
+    window.location.href = '/';
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-opacity-75">
-      <div className="bg-white shadow-xl rounded-lg p-8 w-96 text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Welcome!</h1>
-        <p className="text-gray-600 mb-6">Choose your action below to proceed:</p>
-        <div className="flex flex-col space-y-4">
-          <button 
-            onClick={handleSignUpClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded transition-transform transform hover:scale-105">
-            Sign Up
-          </button>
-          <button 
-            onClick={handleLoginClick}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded transition-transform transform hover:scale-105">
-            Login
-          </button>
-        </div>
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-blue-600 to-blue-700">
+    
+      <div className="w-full flex justify-end p-4">
+        <Button 
+          variant="ghost" 
+          className="text-white"
+          onClick={handleHomeClick}
+        >
+          Go to Home
+        </Button>
+      </div>
+      
+   
+      <div className="flex-grow flex items-center justify-center">
+        <Card className="w-96 shadow-xl">
+          <CardHeader className="space-y-1 pb-2">
+            <CardTitle className="text-2xl font-bold text-center">
+              Hii Admin, Welcome to Our Platform
+            </CardTitle>
+            <CardDescription className="text-center">
+              Please sign up or login to continue
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-4 pt-4">
+            <Button 
+              className="w-full h-11 text-base font-medium"
+              onClick={handleSignUpClick}
+            >
+              <UserPlus className="w-5 h-5 mr-2" />
+              Sign Up
+            </Button>
+            
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  or
+                </span>
+              </div>
+            </div>
+            
+            <Button 
+              variant="outline"
+              className="w-full h-11 text-base font-medium"
+              onClick={handleLoginClick}
+            >
+              <LogIn className="w-5 h-5 mr-2" />
+              Login
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

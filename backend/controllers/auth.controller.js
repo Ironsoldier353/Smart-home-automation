@@ -1,5 +1,5 @@
-import {User} from '../models/user.model.js';
-import {Room} from '../models/room.model.js';
+import { User } from '../models/user.model.js';
+import { Room } from '../models/room.model.js';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../utils/generateToken.js';
 import { generateInviteCode } from '../utils/generateInviteCode.js';
@@ -20,10 +20,10 @@ export const registerAdmin = async (req, res) => {
     role: 'admin',
   });
 
-  const room = await Room.create({ 
-    admin: newUser._id, 
-    inviteCode: generateInviteCode(), 
-    inviteCodeExpiry: new Date(Date.now() + 1 * 60 * 1000) 
+  const room = await Room.create({
+    admin: newUser._id,
+    inviteCode: generateInviteCode(),
+    inviteCodeExpiry: new Date(Date.now() + 1 * 60 * 1000)
   });
 
 
@@ -43,9 +43,17 @@ export const loginAdmin = async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-  res.cookie('token', generateToken(user._id), { httpOnly: true, secure: true });
+  if (user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied. Admins only.' });
+  }
+  res.cookie('token', generateToken(user._id), {
+    httpOnly: true, secure: true, maxAge: 3600000,
+    sameSite: 'Strict'
+  });
 
-  res.json({ user, token: generateToken(user._id) });
+  console.log('User logged in successfully', user);
+
+  res.json({ user, token: generateToken(user._id), success: true });
 };
 
 
@@ -58,20 +66,38 @@ export const loginMember = async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-  res.cookie('token', generateToken(user._id), { httpOnly: true, secure: true });
+  res.cookie('token', generateToken(user._id), {
+    httpOnly: true, secure: true, maxAge: 3600000,
+    sameSite: 'Strict'
+  });
 
   res.json({ user, token: generateToken(user._id) });
 };
 
 
 export const logout = (req, res) => {
-  res.clearCookie('token'); 
-  res.json({ message: 'Logged out successfully' });
+  try {
+    res.cookie('token', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict',
+      maxAge: 0 // Immediately expire the cookie
+    });
+
+    res.json({
+      message: 'Logged out successfully.',
+      success: true
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Logout failed', error: error.message, success: true });
+  }
 };
+
+
 
 export const getUserDetails = async (req, res) => {
   try {
-    const userId = req.params.userId; 
+    const userId = req.params.userId;
     const user = await User.findById(userId).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
 
