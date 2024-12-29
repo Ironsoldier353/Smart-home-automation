@@ -12,6 +12,7 @@ import Signup from '../components/auth/Signup';
 import JoinAdmin from '../components/auth/JoinAdmin';
 import RegisterAdmin from '../components/auth/RegisterAdmin';
 import ProtectedRoute1 from '../components/ProtectedRoute1';
+import Dashboard from '../components/dashboard/Dashboard';
 
 // Define your routes
 const browserRouter = createBrowserRouter([
@@ -62,7 +63,12 @@ const browserRouter = createBrowserRouter([
   {
     path: "/add-admin/register",
     element: <RegisterAdmin />
+  },
+  {
+    path: "/debug-dashboard",
+    element: <Dashboard />
   }
+  
 ]);
 
 // Export the RouterProvider to be used in App.jsx
