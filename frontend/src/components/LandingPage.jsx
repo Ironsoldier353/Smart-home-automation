@@ -115,10 +115,10 @@ const LandingPage = () => {
           {[
             { title: "Smart recognition at door", description: "Control the security of your home remotely with our smart door lock system powered by ESP32." },
             { title: "Smart Cooking Assistant", description: "Manage your diet with ease. Our smart home automation system suggests recipes based on your calorie needs." },
-            { title: "Energy Usage Breakdown", description: "Monitor and control your home’s energy consumption through smart plugs and sensors." },
+            { title: "Voice Automated Music System", description: "An interactive voice controlled music player with spotify app." },
             { title: "Smart Water Dispenser", description: "The Smart Water Dispenser uses an IR sensor to dispense water automatically for hygiene and convenience." },
             { title: "Control appliances remotely", description: "Remotely manage your home appliances from anywhere." },
-            { title: "Voice-Activated Home Assistant", description: "Integrate voice-activated technology to control various devices in your home." }
+            { title: "Voice-Activated Home Assistant", description: "Integrate voice-activated technology to control various electronic appliances in your home." }
           ].map((feature, index) => (
             <div
               key={index}
