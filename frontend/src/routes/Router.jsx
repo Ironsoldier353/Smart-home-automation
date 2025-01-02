@@ -12,7 +12,7 @@ import Signup from '../components/auth/Signup';
 import JoinAdmin from '../components/auth/JoinAdmin';
 import RegisterAdmin from '../components/auth/RegisterAdmin';
 import ProtectedRoute1 from '../components/ProtectedRoute1';
-import Dashboard from '../components/dashboard/Dashboard';
+import DashboardDeviceSetup from '../components/dashboard/DashBoardDeviceSetup';
 
 // Define your routes
 const browserRouter = createBrowserRouter([
@@ -65,8 +65,8 @@ const browserRouter = createBrowserRouter([
     element: <RegisterAdmin />
   },
   {
-    path: "/debug-dashboard",
-    element: <Dashboard />
+    path: "/admin/dashboard/:roomId/device-setup",
+    element: <ProtectedRoute1><DashboardDeviceSetup /></ProtectedRoute1>
   }
   
 ]);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Shield, LogOut, Users, Key, Clock } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Shield, LogOut, Users, Key, Clock, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,14 +13,18 @@ import {
 import InviteCodeButton from '../../components/admin/InviteCodeButton';
 import RoomDetails from '../../components/admin/RoomDetails';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/redux/authSlice';
+import { persistStore } from 'redux-persist'
+import store from '@/redux/store';
 
 const DashboardAdmin = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  let persistor = persistStore(store);
+  const user = useSelector((state) => state.auth?.user);
 
   const logoutHandler = async () => {
     setLoading(true);
@@ -33,6 +37,7 @@ const DashboardAdmin = () => {
 
       if (res.data.success) {
         dispatch(logout());
+        persistor.purge();
         navigate('/login');
       }
     } catch (error) {
@@ -45,6 +50,7 @@ const DashboardAdmin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 py-8 px-4">
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header section remains the same */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-indigo-100 rounded-xl backdrop-blur-sm bg-opacity-80">
@@ -58,9 +64,9 @@ const DashboardAdmin = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="space-x-2 bg-white bg-opacity-50 backdrop-blur-sm" 
+                <Button
+                  variant="outline"
+                  className="space-x-2 bg-white bg-opacity-50 backdrop-blur-sm"
                   onClick={logoutHandler}
                   disabled={loading}
                 >
@@ -102,8 +108,19 @@ const DashboardAdmin = () => {
                       <Key className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Access Control</h3>
-                      <p className="text-sm text-gray-500">Manage permissions</p>
+                      <Link to={`/admin/dashboard/${user.room}/device-setup`}>
+                        <Button 
+                          className="group relative overflow-hidden bg-gradient-to-r from-green-400 to-emerald-600 text-white shadow-lg hover:shadow-green-500/50 transition-all duration-300 hover:scale-105"
+                        >
+                          <span className="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out skew-x-12" />
+                          <span className="relative flex items-center space-x-2">
+                            <Key className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                            <span>Access Control</span>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                          </span>
+                        </Button>
+                      </Link>
+                      <p className="text-sm text-gray-500">Manage Devices</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-4">
@@ -147,8 +164,8 @@ const DashboardAdmin = () => {
               </div>
               <h2 className="text-xl font-semibold text-red-600">No Room ID Provided</h2>
               <p className="text-gray-500">Please make sure to include a valid room ID in the URL</p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="mt-4"
                 onClick={() => navigate('/')}
               >
