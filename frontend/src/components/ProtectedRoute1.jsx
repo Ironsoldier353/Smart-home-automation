@@ -10,7 +10,7 @@ function ProtectedRoutes1({children}) {
     const { user } = useSelector(store=>store.auth);
     const navigate = useNavigate();
     useEffect(()=>{
-      const debugMode = true;
+      const debugMode = false;
         if(!debugMode && !user){
             navigate("/login");
         }

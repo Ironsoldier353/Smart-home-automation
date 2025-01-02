@@ -1,10 +1,13 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaShoppingCart } from 'react-icons/fa';
+import { FaShoppingCart, FaChartLine } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 import logo from '../assets/logo.webp';
 import bgImage2 from '../assets/bg-image-2.jpg';
 
 const LandingPage = () => {
+  const user = useSelector((state) => state.auth?.user);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -55,7 +58,7 @@ const LandingPage = () => {
         style={{
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${bgImage2})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundPosition: 'center',
         }}
       >
         <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
@@ -67,24 +70,37 @@ const LandingPage = () => {
           Powered by <span className="text-pink-400 font-semibold">ESP32</span>, our system brings simplicity and convenience to your daily life.
         </p>
 
-        <div className="flex space-x-6">
+        {user ? (
           <Link
-            to="/find-room"
-            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-md"
+            to={`/admin/dashboard/${user.room}`}
+            className="group relative inline-flex items-center space-x-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-8 rounded-xl hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-lg hover:shadow-pink-500/25"
           >
-            Find Room
+            <FaChartLine className="text-xl group-hover:rotate-12 transition-transform duration-300" />
+            <span className="relative">
+              <span className="block transform group-hover:-translate-y-1 transition-transform duration-300">
+                Go to Dashboard
+              </span>
+            </span>
           </Link>
-          <Link
-            to="/setup-room"
-            className="bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-md"
-          >
-            Setup Room
-          </Link>
-        </div>
+        ) : (
+          <div className="flex space-x-6">
+            <Link
+              to="/find-room"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-md"
+            >
+              Find Room
+            </Link>
+            <Link
+              to="/setup-room"
+              className="bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-md"
+            >
+              Setup Room
+            </Link>
+          </div>
+        )}
       </section>
-
-      {/* Aim Section */}
-      <section id="aim" className="py-16 md:py-24 bg-gray-800 text-center px-6">
+       {/* Aim Section */}
+       <section id="aim" className="py-16 md:py-24 bg-gray-800 text-center px-6">
         <div className="max-w-4xl mx-auto space-y-8">
           <h2 className="text-3xl md:text-4xl font-semibold text-white mb-6">
             Our Vision & Mission
