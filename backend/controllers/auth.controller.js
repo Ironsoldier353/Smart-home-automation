@@ -47,7 +47,7 @@ export const loginAdmin = async (req, res) => {
     return res.status(403).json({ message: 'Access denied. Admins only.' });
   }
   res.cookie('token', generateToken(user._id), {
-    httpOnly: true, secure: true, maxAge: 3600000,
+    httpOnly: true, secure: true, maxAge: 86400000,
     sameSite: 'Strict'
   });
 
@@ -67,7 +67,7 @@ export const loginMember = async (req, res) => {
   if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
   res.cookie('token', generateToken(user._id), {
-    httpOnly: true, secure: true, maxAge: 3600000,
+    httpOnly: true, secure: true, maxAge: 86400000,
     sameSite: 'Strict'
   });
 

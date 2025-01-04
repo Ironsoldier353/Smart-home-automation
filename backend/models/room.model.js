@@ -16,7 +16,14 @@ const roomSchema = new mongoose.Schema({
   },
   inviteCodeExpiry: { 
     type: Date 
-  }
+  },
+
+  devices: [
+    { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Device' 
+    }
+  ] 
 });
 
 export const Room =  mongoose.model('Room', roomSchema);
