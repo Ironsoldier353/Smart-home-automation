@@ -3,6 +3,7 @@ import { Room } from '../models/room.model.js';
 import { generateInviteCode } from '../utils/generateInviteCode.js';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../utils/generateToken.js';
+import mongoose from 'mongoose';
 
 
 export const generateInviteCodeForRoom = async (req, res) => {
@@ -87,27 +88,46 @@ export const addMemberToRoom = async (req, res) => {
   }
 };
 
-
-
-
 export const removeMemberFromRoom = async (req, res) => {
   const { memberId } = req.body;
   const { roomId } = req.params;
 
-  const room = await Room.findById(roomId);
-  if (!room) return res.status(404).json({ message: 'Room not found', success: false });
+  try {
+    
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found', success: false });
+    }
 
-  if (String(room.admin) !== String(req.user._id)) {
-    return res.status(403).json({ message: 'Only Admin can access', success: false});
+    if (String(room.admin) !== String(req.user._id)) {
+      return res.status(403).json({ message: 'Only Admin can access', success: false });
+    }
+
+    const memberIdObjectId = new mongoose.Types.ObjectId(memberId);
+
+    const memberIndex = room.members.findIndex(member => {
+      return new mongoose.Types.ObjectId(member).equals(memberIdObjectId); 
+    });
+
+    if (memberIndex === -1) {
+      return res.status(400).json({ message: 'Member not found in the room', success: false });
+    }
+
+    room.members.splice(memberIndex, 1);
+    await room.save(); 
+
+    
+    await User.findByIdAndDelete(memberIdObjectId);
+
+    res.json({ message: 'Member removed successfully', success: true });
+  } catch (error) {
+    console.error('Error removing member:', error);
+    res.status(500).json({ message: 'Internal server error', success: false });
   }
-
-  room.members = room.members.filter(member => String(member) !== memberId);
-  await room.save();
-
-  await User.findByIdAndDelete(memberId);
-
-  res.json({ message: 'Member removed successfully', success: true });
 };
+
+
+
 
 export const getRoomDetails = async (req, res) => {
   const { roomId } = req.params;

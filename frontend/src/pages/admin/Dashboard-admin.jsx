@@ -133,7 +133,7 @@ const DashboardAdmin = () => {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
+
                   <button
                     onClick={getUserCount}
                     className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
@@ -152,7 +152,7 @@ const DashboardAdmin = () => {
                     </div>
                   </button>
 
-                 
+
                   <Link
                     to={`/admin/dashboard/${user.room}/device-setup`}
                     className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
@@ -171,7 +171,7 @@ const DashboardAdmin = () => {
                     </div>
                   </Link>
 
-                  
+
                   <button
                     onClick={handelGetUserDetails}
                     className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"

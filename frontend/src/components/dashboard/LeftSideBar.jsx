@@ -7,6 +7,7 @@ import { logout } from '@/redux/authSlice';
 import { persistStore } from 'redux-persist';
 import store from '@/redux/store';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const Sidebar = ({ devices, roomId }) => {
   const navigate = useNavigate();
@@ -40,10 +41,27 @@ const Sidebar = ({ devices, roomId }) => {
   const handleDeviceClick = (deviceId) => {
     navigate(`/admin/dashboard/${roomId}/device-setup/${deviceId}`);
   };
+  const handelGetUserDetails = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/api/v1/auth/${user?._id}`, {
+        withCredentials: true
+      });
+
+      if (res.data.success) {
+
+        navigate(`/admin/${user?._id}`);
+        toast.success(res.data.message);
+      }
+
+    } catch (error) {
+      console.error(error.response?.data?.message || 'Error fetching user details');
+      toast.error(error.response?.data?.message || 'Error fetching user details');
+    }
+  }
 
   const fetchMacAddress = async () => {
     try {
-      const res = await axios.get('http://<ESP32_IP_ADDRESS>/mac-address'); 
+      const res = await axios.get('http://<ESP32_IP_ADDRESS>/mac-address');
       if (res.data.macAddress) {
         setMacAddress(res.data.macAddress);
       }
@@ -78,8 +96,8 @@ const Sidebar = ({ devices, roomId }) => {
                   {device.name}
                 </span>
               </div>
-              <ChevronRight 
-                className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" 
+              <ChevronRight
+                className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
               />
             </li>
           ))}
@@ -93,11 +111,11 @@ const Sidebar = ({ devices, roomId }) => {
               <Settings className="w-5 h-5 text-blue-600" /> {/* Change color to blue */}
               <span className="text-sm text-blue-600 font-medium">Know your MAC Address</span> {/* Blue text */}
             </div>
-            <ChevronRight 
-              className="w-4 h-4 text-blue-400 group-hover:text-blue-600 transition-colors" 
+            <ChevronRight
+              className="w-4 h-4 text-blue-400 group-hover:text-blue-600 transition-colors"
             />
           </li>
-          
+
         </ul>
 
         {/* Display MAC Address */}
@@ -118,17 +136,19 @@ const Sidebar = ({ devices, roomId }) => {
       {/* User Info and Logout Section */}
       <div className="border-t border-gray-200 p-4">
         <div className="flex flex-col space-y-4">
-          <div className="flex items-center space-x-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-sm font-medium text-gray-600">
-                U
-              </span>
+          <button className=' hover:bg-blue-100 transition-colors group' onClick={handelGetUserDetails}>
+            <div className="flex items-center space-x-3 px-2">
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                <span className="text-sm font-medium text-gray-600">
+                  U
+                </span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-800">{user?.username || 'User'}</p>
+                <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-800">{user?.username || 'User'}</p>
-              <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
-            </div>
-          </div>
+          </button>
           <button
             onClick={logoutHandler}
             disabled={loading}
