@@ -53,6 +53,7 @@ export const loginAdmin = async (req, res) => {
 
 
 
+  //console.log(user);
   res.json({ user, token: generateToken(user._id), success: true, message: 'Admin Logged in successfully' });
 };
 
@@ -129,5 +130,22 @@ export const getAllUserCountFromRoomId = async (req, res) => {
   } catch (error) {
     console.error('Error fetching user count:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const getUserbyEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne(email).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found', success: false });
+
+    res.json({ user, success: true });
+
+
+
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Server error. Please Try again...', success: false, error: error.message });
   }
 };
