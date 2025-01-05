@@ -51,7 +51,7 @@ export const loginAdmin = async (req, res) => {
     sameSite: 'Strict'
   });
 
-  
+
 
   res.json({ user, token: generateToken(user._id), success: true, message: 'Admin Logged in successfully' });
 };
@@ -61,7 +61,7 @@ export const loginMember = async (req, res) => {
   const { email, password, roomId } = req.body;
 
   const user = await User.findOne({ email, room: roomId });
-  if (!user) return res.status(404).json({ message: 'User not found', success: false});
+  if (!user) return res.status(404).json({ message: 'User not found', success: false });
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(400).json({ message: 'Invalid credentials', success: false });
@@ -97,12 +97,37 @@ export const logout = (req, res) => {
 
 export const getUserDetails = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
     const user = await User.findById(userId).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found', success: false });
 
-    res.json({ user });
+    res.json({ user, success: true, message: 'User details fetched successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error. Please Try again...', success: false, error: error.message });
+  }
+};
+
+
+export const getAllUserCountFromRoomId = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+
+    if (!roomId) {
+      return res.status(400).json({ message: 'Room ID is required' });
+    }
+
+    const room = await Room.findById(roomId).populate('admin members');
+
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+
+    const totalUsersLength = room.admin.length + room.members.length;
+
+
+    res.status(200).json({ totalUsersLength });
+  } catch (error) {
+    console.error('Error fetching user count:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };

@@ -14,6 +14,7 @@ import RegisterAdmin from '../components/auth/RegisterAdmin';
 import ProtectedRoute1 from '../components/ProtectedRoute1';
 import DashboardDeviceSetup from '../components/dashboard/DashBoardDeviceSetup';
 import DeviceSetup from '@/components/dashboard/DeviceSetup';
+import AdminUserDetails from '@/components/admin/adminUserDetails';
 
 // Define your routes
 const browserRouter = createBrowserRouter([
@@ -72,6 +73,10 @@ const browserRouter = createBrowserRouter([
   {
     path: "/admin/dashboard/:roomId/device-setup/:deviceId",
     element: <ProtectedRoute1><DeviceSetup /></ProtectedRoute1>
+  },
+  {
+    path: "/admin/:userId",
+    element: <ProtectedRoute1><AdminUserDetails /></ProtectedRoute1>
   }
   
 ]);

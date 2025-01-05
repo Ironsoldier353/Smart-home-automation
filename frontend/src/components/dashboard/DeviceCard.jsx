@@ -1,9 +1,10 @@
+/* eslint-disable react/prop-types */
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { Pencil, Power } from 'lucide-react';
 
 const DeviceCard = ({ device, onRenameDevice, onTogglePower }) => {
-  const { deviceName, status } = device;
+  const { deviceName, status, mac } = device;
   const [isEditing, setIsEditing] = useState(false);
   const [newDeviceName, setNewDeviceName] = useState(deviceName);
 
@@ -74,7 +75,9 @@ const DeviceCard = ({ device, onRenameDevice, onTogglePower }) => {
               {status === "on" ? "Currently Active" : "Currently Inactive"}
             </p>
           </div>
-          
+          <p className="mt-1 text-m font-medium text-gray-900">MAC ADDRESS : 
+            <span className="mt-1 ml-4 text-sm font-medium text-blue-600">{mac}</span>
+          </p>
           <button
             onClick={onTogglePower}
             className={`
@@ -88,6 +91,7 @@ const DeviceCard = ({ device, onRenameDevice, onTogglePower }) => {
             <Power className="w-5 h-5" />
             <span>{status === "on" ? "Deactivate" : "Activate"}</span>
           </button>
+          
         </div>
       </div>
     </div>

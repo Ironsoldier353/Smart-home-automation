@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 const DeviceSetup = () => {
     const [status, setStatus] = useState('');
     const [deviceName, setDeviceName] = useState('');
+    const [mac, setMac] = useState('');
     const { roomId, deviceId } = useParams();
 
     const navigate = useNavigate();
@@ -22,6 +23,7 @@ const DeviceSetup = () => {
                     if (device) {
                         setDeviceName(device.name);
                         setStatus(device.status);
+                        setMac(device.macAddress);
                     }
 
                 }
@@ -95,7 +97,7 @@ const DeviceSetup = () => {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-white rounded-lg shadow">
                     <DeviceCard
-                        device={{ deviceName, status }}
+                        device={{ deviceName, status, mac }}
                         onRenameDevice={handleRename}
                         onTogglePower={handleToggleStatus}
                     />
