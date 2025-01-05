@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Shield, LogOut, Users, Key, Clock, ArrowRight } from 'lucide-react';
+import { Shield, LogOut, Users, Key, Mail, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,8 @@ const DashboardAdmin = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [userCount, setUserCount] = useState('');
+  const [userDetails, setUserDetails] = useState('');
   const dispatch = useDispatch();
   let persistor = persistStore(store);
   const user = useSelector((state) => state.auth?.user);
@@ -50,10 +53,43 @@ const DashboardAdmin = () => {
     }
   };
 
+  const getUserCount = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8000/api/v1/auth/admin/${roomId}/getUserCount`,
+        { withCredentials: true }
+      );
+
+      if (res.data.totalUsersLength) {
+        setUserCount(res.data.totalUsersLength);
+      }
+    } catch (error) {
+      console.error(error.response?.data?.message || 'Error fetching user count');
+    }
+  }
+
+  const handelGetUserDetails = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/api/v1/auth/${user?._id}`, {
+        withCredentials: true
+      });
+
+      if (res.data.success) {
+        setUserDetails(res.data.user);
+        navigate(`/admin/${user?._id}`);
+        toast.success(res.data.message);
+      }
+
+    } catch (error) {
+      console.error(error.response?.data?.message || 'Error fetching user details');
+      toast.error(error.response?.data?.message || 'Error fetching user details');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 py-8 px-4">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header section remains the same */}
+        {/* Header section */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-indigo-100 rounded-xl backdrop-blur-sm bg-opacity-80">
@@ -73,8 +109,8 @@ const DashboardAdmin = () => {
                   onClick={logoutHandler}
                   disabled={loading}
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span>{loading ? 'Logging out...' : 'Logout'}</span>
+                  <LogOut className="w-4 h-4 text-red-600" />
+                  <span className='text-red-600'>{loading ? 'Logging out...' : 'Logout'}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -97,64 +133,108 @@ const DashboardAdmin = () => {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Users className="w-5 h-5 text-blue-600" />
+              
+                  <button
+                    onClick={getUserCount}
+                    className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex flex-col items-center space-y-3">
+                      <div className="p-3 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200">
+                        <Users className="w-6 h-6 text-indigo-600 group-hover:text-indigo-700" />
+                      </div>
+                      <span className="font-medium text-gray-700 group-hover:text-gray-900">
+                        Total Users
+                      </span>
+                      <span className="text-sm text-gray-500 group-hover:text-gray-700">
+                        {userCount || "Click to view"}
+                      </span>
                     </div>
-                    <div>
-                      <h3 className="font-medium">Active Users</h3>
-                      <p className="text-sm text-gray-500">Currently online</p>
+                  </button>
+
+                 
+                  <Link
+                    to={`/admin/dashboard/${user.room}/device-setup`}
+                    className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex flex-col items-center space-y-3">
+                      <div className="p-3 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200">
+                        <Key className="w-6 h-6 text-indigo-600 group-hover:text-indigo-700" />
+                      </div>
+                      <span className="font-medium text-gray-700 group-hover:text-gray-900">
+                        Access Control
+                      </span>
+                      <span className="text-sm text-gray-500 group-hover:text-gray-700">
+                        Manage Devices
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Key className="w-5 h-5 text-green-600" />
+                  </Link>
+
+                  
+                  <button
+                    onClick={handelGetUserDetails}
+                    className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex flex-col items-center space-y-3">
+                      <div className="p-3 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200">
+                        <span className="text-xl font-medium w-6 h-6 text-indigo-600 group-hover:text-indigo-700">
+                          U
+                        </span>
+                      </div>
+                      <span className="font-medium text-gray-700 group-hover:text-gray-900">
+                        User Details
+                      </span>
+                      <span className="text-sm text-gray-500 group-hover:text-gray-700">
+                        User Informations
+                      </span>
                     </div>
-                    <div>
-                      <Link to={`/admin/dashboard/${user.room}/device-setup`}>
-                        <Button 
-                          className="group relative overflow-hidden bg-gradient-to-r from-green-400 to-emerald-600 text-white shadow-lg hover:shadow-green-500/50 transition-all duration-300 hover:scale-105"
-                        >
-                          <span className="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out skew-x-12" />
-                          <span className="relative flex items-center space-x-2">
-                            <Key className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
-                            <span>Access Control</span>
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                          </span>
-                        </Button>
-                      </Link>
-                      <p className="text-sm text-gray-500">Manage Devices</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="p-2 bg-purple-100 rounded-lg">
-                      <Clock className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">Session Time</h3>
-                      <p className="text-sm text-gray-500">Room activity</p>
-                    </div>
-                  </div>
+                  </button>
                 </div>
               </CardContent>
             </Card>
 
             <div className="grid gap-6 md:grid-cols-2">
+              {/* Room Access Card */}
               <Card className="backdrop-blur-sm bg-white bg-opacity-90">
                 <CardHeader>
-                  <CardTitle>Room Access</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Room Access</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <InviteCodeButton roomId={roomId} />
+                  <div className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex flex-col items-center space-y-4">
+                      <div className="p-3 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200">
+                        <Mail className="w-6 h-6 text-indigo-600 group-hover:text-indigo-700" />
+                      </div>
+                      <span className="font-medium text-gray-700 group-hover:text-gray-900">
+                        Generate Invite Code
+                      </span>
+                      <InviteCodeButton roomId={roomId} />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
+              {/* Room Details Card */}
               <Card className="backdrop-blur-sm bg-white bg-opacity-90">
                 <CardHeader>
-                  <CardTitle>Room Details</CardTitle>
+                  <CardTitle className="text-xl font-semibold">Room Details</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RoomDetails roomId={roomId} />
+                  <div className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex flex-col items-center space-y-4">
+                      <div className="p-3 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200">
+                        <Info className="w-6 h-6 text-indigo-600 group-hover:text-indigo-700" />
+                      </div>
+                      <span className="font-medium text-gray-700 group-hover:text-gray-900">
+                        Room Information
+                      </span>
+                      <RoomDetails roomId={roomId} />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

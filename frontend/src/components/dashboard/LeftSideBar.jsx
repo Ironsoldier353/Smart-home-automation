@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Laptop, ChevronRight, Settings, LogOut, Info } from 'lucide-react'; // Import Info icon
+import { Laptop, ChevronRight, Settings, LogOut, Layers } from 'lucide-react'; // Import Info icon
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/redux/authSlice';
 import { persistStore } from 'redux-persist';
@@ -73,7 +73,7 @@ const Sidebar = ({ devices, roomId }) => {
               className="flex items-center justify-between px-2 py-2 rounded-md cursor-pointer hover:bg-gray-100 transition-colors group"
             >
               <div className="flex items-center space-x-3">
-                <Settings className="w-5 h-5 text-gray-600" />
+                <Layers className="w-5 h-5 text-blue-600" />
                 <span className="text-sm text-gray-700 font-medium">
                   {device.name}
                 </span>
@@ -90,7 +90,7 @@ const Sidebar = ({ devices, roomId }) => {
             className="flex items-center justify-between px-2 py-2 rounded-md cursor-pointer hover:bg-blue-50 transition-colors group"
           >
             <div className="flex items-center space-x-3">
-              <Info className="w-5 h-5 text-blue-600" /> {/* Change color to blue */}
+              <Settings className="w-5 h-5 text-blue-600" /> {/* Change color to blue */}
               <span className="text-sm text-blue-600 font-medium">Know your MAC Address</span> {/* Blue text */}
             </div>
             <ChevronRight 
