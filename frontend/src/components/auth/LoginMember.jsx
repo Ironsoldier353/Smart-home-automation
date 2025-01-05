@@ -6,6 +6,7 @@ import { Label } from "../ui/label";
 import { Building, Loader2, Lock, Mail } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 const LoginMember = () => {
   const [email, setEmail] = useState("");
@@ -27,8 +28,12 @@ const LoginMember = () => {
         { withCredentials: true }
       );
 
-      setMessage("Login successful! Redirecting...");
       const user = res.data.user;
+
+      if (res.data.success) {
+        setMessage("Login successful! Redirecting...");
+        toast.success(res.data.message);
+      }
 
       if (user.room) {
         setTimeout(() => {
@@ -39,6 +44,7 @@ const LoginMember = () => {
       }
     } catch (error) {
       setMessage(error.response?.data?.message || "Invalid credentials or room not found.");
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }

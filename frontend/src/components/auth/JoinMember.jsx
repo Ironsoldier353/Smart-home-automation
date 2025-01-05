@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, Key, Loader2 } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
 
 const JoinMember = () => {
   const [email, setEmail] = useState("");
@@ -24,13 +25,18 @@ const JoinMember = () => {
         password,
         inviteCode,
       });
-      setMessage(response.data.message);
 
-      setEmail("");
-      setPassword("");
-      setInviteCode("");
+      if (response.data.success) {
+        setMessage(response.data.message);
+
+        setEmail("");
+        setPassword("");
+        setInviteCode("");
+        toast.success(response.data.message);
+      }
     } catch (error) {
       setMessage(error.response?.data?.message || "Something went wrong.");
+      toast.error(error.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -124,9 +130,8 @@ const JoinMember = () => {
 
           {message && (
             <div
-              className={`mt-4 text-sm font-medium ${
-                message.includes("success") ? "text-green-500" : "text-red-500"
-              }`}
+              className={`mt-4 text-sm font-medium ${message.includes("success") ? "text-green-500" : "text-red-500"
+                }`}
             >
               {message}
             </div>

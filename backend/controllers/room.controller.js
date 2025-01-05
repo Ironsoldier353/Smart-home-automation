@@ -9,11 +9,11 @@ export const generateInviteCodeForRoom = async (req, res) => {
   const { roomId } = req.params;
   const room = await Room.findById(roomId);
 
-  if (!room) return res.status(404).json({ message: 'Room not found' });
+  if (!room) return res.status(404).json({ message: 'Room not found', success: false });
 
   const isAdmin = room.admin.some(admin => String(admin._id) === String(req.user._id));
   if (!isAdmin) {
-    return res.status(403).json({ message: 'Only Admin can access' });
+    return res.status(403).json({ message: 'Only Admin can access', success: false });
   }
 
   try {
@@ -24,15 +24,17 @@ export const generateInviteCodeForRoom = async (req, res) => {
     room.inviteCodeExpiry = expiryTime;
 
     await room.save();
-    res.json({ inviteCode });
+    res.json({ inviteCode, message: 'Invite code generated successfully', success: true });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({
-        message: 'Failed to generate unique invite code. Please try again.'
+        message: 'Failed to generate unique invite code. Please try again.',
+        success: false,
+
       });
     }
 
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error', success: false });
   }
 };
 
@@ -40,7 +42,7 @@ export const addMemberToRoom = async (req, res) => {
   const { email, password, inviteCode } = req.body;
 
   const room = await Room.findOne({ inviteCode });
-  if (!room) return res.status(400).json({ message: 'Invalid invite code' });
+  if (!room) return res.status(400).json({ message: 'Invalid invite code', success: false });
 
   const currentTime = new Date();
   currentTime.setMinutes(currentTime.getMinutes() + 330);
@@ -48,27 +50,41 @@ export const addMemberToRoom = async (req, res) => {
   if (!room.inviteCodeExpiry || room.inviteCodeExpiry < currentTime) {
     return res.status(400).json({
       message: 'Invite code has expired. Collect a new invite code from admin',
+      success: false,
     });
   }
 
-  const username = email.split('@')[0];
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const username = email.split('@')[0];
+    const hashedPassword = await bcrypt.hash(password, 10);
+  
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      role: 'member',
+      room: room._id,
+      username,
+    });
+  
+    room.members.push(newUser._id);
+    await room.save();
+  
+    res.status(201).json({
+      user: newUser,
+      message: `Member added to Room-${room._id} successfully`,
+      success: true,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        message: 'Email already exists',
+        success: false,
+      });
+    }
 
-  const newUser = await User.create({
-    email,
-    password: hashedPassword,
-    role: 'member',
-    room: room._id,
-    username,
-  });
-
-  room.members.push(newUser._id);
-  await room.save();
-
-  res.status(201).json({
-    user: newUser,
-    message: `Member added to Room-${room._id} successfully`,
-  });
+    res.status(500).json({ message: 'Internal server error', success: false });
+    
+  }
 };
 
 
@@ -79,10 +95,10 @@ export const removeMemberFromRoom = async (req, res) => {
   const { roomId } = req.params;
 
   const room = await Room.findById(roomId);
-  if (!room) return res.status(404).json({ message: 'Room not found' });
+  if (!room) return res.status(404).json({ message: 'Room not found', success: false });
 
   if (String(room.admin) !== String(req.user._id)) {
-    return res.status(403).json({ message: 'Only Admin can access' });
+    return res.status(403).json({ message: 'Only Admin can access', success: false});
   }
 
   room.members = room.members.filter(member => String(member) !== memberId);
@@ -90,7 +106,7 @@ export const removeMemberFromRoom = async (req, res) => {
 
   await User.findByIdAndDelete(memberId);
 
-  res.json({ message: 'Member removed successfully' });
+  res.json({ message: 'Member removed successfully', success: true });
 };
 
 export const getRoomDetails = async (req, res) => {
@@ -110,7 +126,7 @@ export const getRoomDetails = async (req, res) => {
       return res.status(403).json({ message: 'Only Admin can access' });
     }
 
-    res.json({ room });
+    res.json({ room , message: 'Room details fetched successfully', success: true });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -120,19 +136,19 @@ export const getRoomDetails = async (req, res) => {
 export const getRoomIDbyUsername = async (req, res) => {
   const { username } = req.body;
 
-  if (!username) return res.status(400).json({ message: 'Username is required' });
+  if (!username) return res.status(400).json({ message: 'Username is required', success: false });
 
   try {
     const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: 'User not found', success: false });
 
     const room = await Room.findById(user.room._id);
-    if (!room) return res.status(404).json({ message: 'Room not found' });
+    if (!room) return res.status(404).json({ message: 'Room not found', success: false });
 
-    return res.json({ roomId: room._id });
+    return res.json({ roomId: room._id, success: true, message: 'Room ID fetched successfully' });
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error', success: false });
   }
 };
 
@@ -141,19 +157,19 @@ export const registerAsAdmin = async (req, res) => {
 
 
   if (!email || !password || !roomId) {
-    return res.status(400).json({ message: 'All fields are required' });
+    return res.status(400).json({ message: 'All fields are required', success: false });
   }
 
   // Check if room exists
   const room = await Room.findById(roomId);
   if (!room) {
-    return res.status(404).json({ message: 'Room not found' });
+    return res.status(404).json({ message: 'Room not found', success: false });
   }
 
   // Check if email already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return res.status(400).json({ message: 'Email already exists' });
+    return res.status(400).json({ message: 'Email already exists', success: false });
   }
 
   // Hash the password before saving
@@ -183,6 +199,7 @@ export const registerAsAdmin = async (req, res) => {
     user: newUser,
     token: generateToken(newUser._id),
     message: 'Admin registered using roomid successfully',
+    success: true,
   });
 
 };
