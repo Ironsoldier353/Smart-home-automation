@@ -8,7 +8,7 @@ export const registerAdmin = async (req, res) => {
   const { email, password } = req.body;
 
   const existingUser = await User.findOne({ email });
-  if (existingUser) return res.status(400).json({ message: 'Email already exists' });
+  if (existingUser) return res.status(400).json({ message: 'Email already exists', success: false });
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const username = `user_${Math.random().toString(36).substr(2, 6)}`;
@@ -30,7 +30,7 @@ export const registerAdmin = async (req, res) => {
   newUser.room = room._id;
   await newUser.save();
 
-  res.status(201).json({ user: newUser, token: generateToken(newUser._id), message: 'Admin registered successfully' });
+  res.status(201).json({ user: newUser, token: generateToken(newUser._id), message: 'Admin registered successfully', success: true });
 };
 
 
@@ -38,22 +38,22 @@ export const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({ username });
-  if (!user) return res.status(404).json({ message: 'User not found' });
+  if (!user) return res.status(404).json({ message: 'User not found', success: false });
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+  if (!isMatch) return res.status(400).json({ message: 'Invalid credentials', success: false });
 
   if (user.role !== 'admin') {
-    return res.status(403).json({ message: 'Access denied. Admins only.' });
+    return res.status(403).json({ message: 'Access denied. Admins only.', success: false });
   }
   res.cookie('token', generateToken(user._id), {
     httpOnly: true, secure: true, maxAge: 86400000,
     sameSite: 'Strict'
   });
 
-  console.log('User logged in successfully', user);
+  
 
-  res.json({ user, token: generateToken(user._id), success: true });
+  res.json({ user, token: generateToken(user._id), success: true, message: 'Admin Logged in successfully' });
 };
 
 
@@ -61,17 +61,17 @@ export const loginMember = async (req, res) => {
   const { email, password, roomId } = req.body;
 
   const user = await User.findOne({ email, room: roomId });
-  if (!user) return res.status(404).json({ message: 'User not found' });
+  if (!user) return res.status(404).json({ message: 'User not found', success: false});
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+  if (!isMatch) return res.status(400).json({ message: 'Invalid credentials', success: false });
 
   res.cookie('token', generateToken(user._id), {
     httpOnly: true, secure: true, maxAge: 86400000,
     sameSite: 'Strict'
   });
 
-  res.json({ user, token: generateToken(user._id) });
+  res.json({ user, token: generateToken(user._id), success: true, message: 'Member Logged in successfully' });
 };
 
 
@@ -89,7 +89,7 @@ export const logout = (req, res) => {
       success: true
     });
   } catch (error) {
-    res.status(500).json({ message: 'Logout failed', error: error.message, success: true });
+    res.status(500).json({ message: 'Logout failed', error: error.message, success: false });
   }
 };
 
@@ -99,10 +99,10 @@ export const getUserDetails = async (req, res) => {
   try {
     const userId = req.params.userId;
     const user = await User.findById(userId).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: 'User not found', success: false });
 
     res.json({ user });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error. Please Try again...', success: false, error: error.message });
   }
 };

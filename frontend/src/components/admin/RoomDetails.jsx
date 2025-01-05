@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const RoomDetails = ({ roomId }) => {
   const [roomDetails, setRoomDetails] = useState(null);
@@ -16,9 +17,13 @@ const RoomDetails = ({ roomId }) => {
         `http://localhost:8000/api/v1/rooms/admin/room-details/${roomId}`,
         { withCredentials: true }
       );
+      if(response.data.success) {
       setRoomDetails(response.data.room); // Save room details to state
+      toast.success(response.data.message);
+      }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Error fetching room details');
+      toast.error(err.response?.data?.message || err.message || 'Error fetching room details');
     } finally {
       setLoadingDetails(false);
     }

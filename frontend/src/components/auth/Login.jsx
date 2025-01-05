@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Lock, User, Loader2, Home } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/authSlice';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -28,12 +29,14 @@ const Login = () => {
         { username, password },
         { withCredentials: true }
       );
-      setMessage('Login successful! Redirecting...');
+      
       const user = res.data.user;
 
 
       if(res.data.success) {
+        setMessage('Login successful! Redirecting...');
         dispatch(login(user));
+        toast.success(res.data.message);
       }
 
       if (!user.room) {
@@ -47,6 +50,7 @@ const Login = () => {
       }, 1500);
     } catch (error) {
       setMessage(error.response?.data?.message || 'Invalid credentials');
+      toast.error(error.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }

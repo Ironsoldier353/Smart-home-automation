@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/redux/authSlice';
 import { persistStore } from 'redux-persist'
 import store from '@/redux/store';
+import { toast } from 'sonner';
 
 const DashboardAdmin = () => {
   const { roomId } = useParams();
@@ -39,9 +40,11 @@ const DashboardAdmin = () => {
         dispatch(logout());
         persistor.purge();
         navigate('/login');
+        toast.success(res.data.message);
       }
     } catch (error) {
       console.error(error.response?.data?.message || 'Logout failed');
+      toast.error(error.response?.data?.message || 'Logout failed');
     } finally {
       setLoading(false);
     }

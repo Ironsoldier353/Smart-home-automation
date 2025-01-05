@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { FiKey } from 'react-icons/fi';  // Importing an icon
+import { toast } from 'sonner';
 
 const InviteCodeButton = ({ roomId }) => {
   const [inviteCode, setInviteCode] = useState(null);
@@ -21,9 +22,13 @@ const InviteCodeButton = ({ roomId }) => {
         }
       );
 
-      setInviteCode(response.data.inviteCode);
+      if(response.data.success) {
+        setInviteCode(response.data.inviteCode);
+        toast.success(response.data.message);
+      }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Error generating invite code');
+      toast.error(err.response?.data?.message || 'Error generating invite code');
     } finally {
       setLoading(false);
     }

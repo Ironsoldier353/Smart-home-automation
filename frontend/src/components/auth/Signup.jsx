@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, Loader2, Home } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -21,13 +22,18 @@ const Signup = () => {
 
     try {
       const response = await axios.post('http://localhost:8000/api/v1/auth/admin/register', { email, password });
-      setUsername(response.data.user.username);
-      setMessage(response.data.message);
 
-      setEmail('');
-      setPassword('');
+      if (response.data.success) {
+        setUsername(response.data.user.username);
+        setMessage(response.data.message);
+
+        setEmail('');
+        setPassword('');
+        toast.success(response.data.message);
+      }
     } catch (error) {
       setMessage(error.response?.data?.message || 'Something went wrong.');
+      toast.error(error.response?.data?.message || 'Something went wrong.');
     } finally {
       setLoading(false);
     }

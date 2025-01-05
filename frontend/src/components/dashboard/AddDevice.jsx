@@ -1,22 +1,42 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 import PropTypes from "prop-types";
+import axios from "axios";
+import { toast } from "sonner";
 
-const AddDevice = ({ onAddDevice }) => {
+
+const AddDevice = ({ onDeviceRegistered, roomId }) => {
+
   const [deviceName, setDeviceName] = useState("");
   const [ssid, setSsid] = useState("");
   const [password, setPassword] = useState("");
   const [macAddress, setMacAddress] = useState("");
   const [isVisible, setIsVisible] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newDevice = { deviceName, ssid, password, macAddress };
-    onAddDevice(newDevice);
-    setIsVisible(false); // Close the form after submitting
-    setDeviceName("");
-    setSsid("");
-    setPassword("");
-    setMacAddress(""); 
+    try {
+      const newDevice = { deviceName, ssid, password, macAddress };
+      const response = await axios.post(`http://localhost:8000/api/v1/devices/register/${roomId}`, newDevice);
+
+      if (response.data.success) {
+        onDeviceRegistered(response.data.device);
+
+        setIsVisible(false);
+        setDeviceName("");
+        setSsid("");
+        setPassword("");
+        setMacAddress("");
+
+        toast.success(response.data.message);
+
+      }
+
+    } catch (error) {
+      console.error("Error registering device:", error);
+      toast.error(error.response.data.message);
+
+    }
   };
 
   return (
@@ -85,7 +105,7 @@ const AddDevice = ({ onAddDevice }) => {
 
 // Add PropTypes for the onAddDevice prop
 AddDevice.propTypes = {
-  onAddDevice: PropTypes.func.isRequired, 
+  onAddDevice: PropTypes.func.isRequired,
 };
 
 export default AddDevice;

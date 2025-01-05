@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, Loader2, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const RegisterAdmin = () => {
   const [email, setEmail] = useState("");
@@ -27,19 +28,20 @@ const RegisterAdmin = () => {
         { email, password, roomId }
       );
 
-      // Log the full response for debugging purposes
-      console.log(response);
-
       // Make sure the response structure matches what's expected
-      setUsername(response.data.user.username);
-      setMessage(response.data.message);
+      if (response.data.success) {
+        setUsername(response.data.user.username);
+        setMessage(response.data.message);
 
-      setEmail("");
-      setPassword("");
-      setRoomId("");
+        setEmail("");
+        setPassword("");
+        setRoomId("");
+        toast.success(response.data.message);
+      }
     } catch (error) {
       console.error(error); // Log the error for debugging
       setMessage(error.response?.data?.message || "Something went wrong.");
+      toast.error(error.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -134,9 +136,8 @@ const RegisterAdmin = () => {
 
           {message && (
             <div
-              className={`mt-4 text-sm font-medium ${
-                message.includes("success") ? "text-green-500" : "text-red-500"
-              }`}
+              className={`mt-4 text-sm font-medium ${message.includes("success") ? "text-green-500" : "text-red-500"
+                }`}
             >
               {message}
             </div>

@@ -1,88 +1,106 @@
 import PropTypes from "prop-types";
-import { FaPencilAlt } from "react-icons/fa";
 import { useState } from "react";
+import { Pencil, Power } from 'lucide-react';
 
-const DeviceCard = ({ device, index, onRenameDevice, onTogglePower }) => {
+const DeviceCard = ({ device, onRenameDevice, onTogglePower }) => {
   const { deviceName, status } = device;
-  
-  // State to track the new device name while editing
-  const [isEditing, setIsEditing] = useState(false); 
+  const [isEditing, setIsEditing] = useState(false);
   const [newDeviceName, setNewDeviceName] = useState(deviceName);
 
-  // editing when pencil icon is clicked
   const handleRename = () => {
     setIsEditing(true);
   };
 
-  // Handle input change for the new device name
   const handleInputChange = (e) => {
     setNewDeviceName(e.target.value);
   };
 
   const handleSave = () => {
     if (newDeviceName.trim() !== "") {
-      onRenameDevice(index, newDeviceName);
+      onRenameDevice(newDeviceName);
       setIsEditing(false);
     }
   };
 
   return (
-    <div className="border p-4 rounded shadow hover:shadow-lg transition-all">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          {/* Device Name */}
+    <div className="p-6">
+      {/* Device Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-4">
           {isEditing ? (
-            <input
-              type="text"
-              value={newDeviceName}
-              onChange={handleInputChange}
-              onBlur={handleSave}
-              className="border p-1 rounded"
-              autoFocus
-            />
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={newDeviceName}
+                onChange={handleInputChange}
+                onBlur={handleSave}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                autoFocus
+              />
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              >
+                Save
+              </button>
+            </div>
           ) : (
-            <h3 className="font-bold">{deviceName}</h3>
-          )}
-
-          {!isEditing && (
-            <FaPencilAlt
-              className="text-gray-500 cursor-pointer ml-2"
-              onClick={handleRename}
-            />
+            <>
+              <h2 className="text-xl font-semibold text-gray-800">{deviceName}</h2>
+              <button
+                onClick={handleRename}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </>
           )}
         </div>
 
-        {isEditing && (
-          <button
-            onClick={handleSave}
-            className="ml-2 bg-blue-500 text-white py-1 px-4 rounded"
-          >
-            Save
-          </button>
-        )}
+        <div className="flex items-center space-x-2">
+          <div className={`w-2 h-2 rounded-full ${status === "on" ? "bg-green-500" : "bg-gray-400"}`} />
+          <span className="text-sm text-gray-600">
+            {status === "on" ? "Active" : "Inactive"}
+          </span>
+        </div>
       </div>
 
-      <p>Status: {status === "on" ? "On" : "Off"}</p>
-
-      <button
-        onClick={() => onTogglePower(index)}
-        className="bg-blue-500 text-white py-1 px-4 rounded mt-2"
-      >
-        {status === "on" ? "Disable" : "Activate"}
-      </button>
+      {/* Device Status and Controls */}
+      <div className="bg-gray-50 rounded-lg p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Device Status</h3>
+            <p className="mt-1 text-lg font-medium text-gray-900">
+              {status === "on" ? "Currently Active" : "Currently Inactive"}
+            </p>
+          </div>
+          
+          <button
+            onClick={onTogglePower}
+            className={`
+              inline-flex items-center space-x-2 px-6 py-3 rounded-md font-medium transition-colors
+              ${status === "on" 
+                ? "bg-red-50 text-red-600 hover:bg-red-100" 
+                : "bg-green-50 text-green-600 hover:bg-green-100"
+              }
+            `}
+          >
+            <Power className="w-5 h-5" />
+            <span>{status === "on" ? "Deactivate" : "Activate"}</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
-// PropTypes for DeviceCard
 DeviceCard.propTypes = {
   device: PropTypes.shape({
     deviceName: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
   }).isRequired,
-  index: PropTypes.number.isRequired,
-  onRenameDevice: PropTypes.func.isRequired,  // Rename function passed from parent
-  onTogglePower: PropTypes.func.isRequired,  // Power toggle function passed from parent
+  onRenameDevice: PropTypes.func.isRequired,
+  onTogglePower: PropTypes.func.isRequired,
 };
 
 export default DeviceCard;
