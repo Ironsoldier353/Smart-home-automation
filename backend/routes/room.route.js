@@ -6,13 +6,13 @@ import { addMemberToRoom, generateInviteCodeForRoom, getRoomDetails, getRoomIDby
 const router = express.Router();
 
 
-router.post('/admin/:roomId/invite-code', authMiddleware, generateInviteCodeForRoom);
+router.post('/admin/invite-code/:roomId', authMiddleware, generateInviteCodeForRoom);
 router.post('/member/add', addMemberToRoom);
 router.delete('/admin/remove/:roomId', authMiddleware, removeMemberFromRoom);
 router.get('/admin/room-details/:roomId', authMiddleware, getRoomDetails);
 
 router.post('/getRoomIDbyUsername', getRoomIDbyUsername);
 
-router.post('/add-member/register', registerAsAdmin);
+router.post('/add-member/admin/register', registerAsAdmin);
 
 export default router;

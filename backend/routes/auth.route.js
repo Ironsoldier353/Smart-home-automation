@@ -10,7 +10,7 @@ router.post('/admin/login', loginAdmin);
 router.post('/user/logoutUser',authMiddleware, logout);  
 router.post('/member/login', loginMember);     
 router.get('/:userId',authMiddleware, getUserDetails); 
-router.get('/admin/:roomId/getUserCount',authMiddleware, getAllUserCountFromRoomId);    
+router.get('/admin/getUserCount/:roomId',authMiddleware, getAllUserCountFromRoomId);    
 router.get('/admin/getuserbyemail',authMiddleware, getUserbyEmail);
 
 

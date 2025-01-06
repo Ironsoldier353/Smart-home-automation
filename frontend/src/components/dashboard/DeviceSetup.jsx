@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DeviceCard from './DeviceCard';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { GET_DEVICES_API, RENAME_DEVICE_API, TOGGLE_DEVICE_STATUS_API } from '@/utils/constants';
 
 const DeviceSetup = () => {
     const [status, setStatus] = useState('');
@@ -15,7 +16,7 @@ const DeviceSetup = () => {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/api/v1/devices/get/${roomId}`, {
+                const response = await axios.get(`${GET_DEVICES_API}/${roomId}`, {
                     withCredentials: true
                 });
                 if (response.data.success) {
@@ -39,7 +40,7 @@ const DeviceSetup = () => {
     const handleRename = async (newName) => {
         try {
             const response = await axios.patch(
-                `http://localhost:8000/api/v1/devices/rename/${roomId}/${deviceId}`,
+                `${RENAME_DEVICE_API}/${roomId}/${deviceId}`,
                 { newName },
                 { withCredentials: true }
             );
@@ -59,7 +60,7 @@ const DeviceSetup = () => {
     const handleToggleStatus = async () => {
         try {
             const response = await axios.patch(
-                `http://localhost:8000/api/v1/devices/sttus/${roomId}/${deviceId}`,
+                `${TOGGLE_DEVICE_STATUS_API}/${roomId}/${deviceId}`,
                 {},
                 { withCredentials: true }
             );

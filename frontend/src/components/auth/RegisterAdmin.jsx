@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, Loader2, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { REGISTER_ADMIN_IN_ADDMEMBER_API } from "@/utils/constants";
 
 const RegisterAdmin = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ const RegisterAdmin = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/rooms/add-member/register",
+        `${REGISTER_ADMIN_IN_ADDMEMBER_API}`,
         { email, password, roomId }
       );
 

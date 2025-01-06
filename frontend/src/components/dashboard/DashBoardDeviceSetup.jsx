@@ -4,6 +4,7 @@ import AddDevice from './AddDevice';
 import Sidebar from './LeftSideBar';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { GET_DEVICES_API } from '@/utils/constants';
 
 const Dashboard = () => {
   const [devices, setDevices] = useState([]);
@@ -12,7 +13,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDevices = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/v1/devices/get/${roomId}`, {
+        const response = await axios.get(`${GET_DEVICES_API}/${roomId}`, {
           withCredentials: true
         });
         if (response.data.success) {

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { User, Search, ArrowRight, Building } from "lucide-react";
 import axios from "axios";
+import { GET_ROOM_ID_BY_USERNAME_API } from "@/utils/constants";
 
 const JoinAdmin = () => {
   const [username, setUsername] = useState("");
@@ -28,7 +29,7 @@ const JoinAdmin = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/rooms/getRoomIDbyUsername",
+        `${GET_ROOM_ID_BY_USERNAME_API}`,
         { username }
       );
       const data = response.data;

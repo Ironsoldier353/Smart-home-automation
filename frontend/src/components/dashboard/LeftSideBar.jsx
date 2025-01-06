@@ -8,6 +8,7 @@ import { persistStore } from 'redux-persist';
 import store from '@/redux/store';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { GET_USER_DETAILS_API, LOGOUT_API } from '@/utils/constants';
 
 const Sidebar = ({ devices, roomId }) => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Sidebar = ({ devices, roomId }) => {
     setLoading(true);
     try {
       const res = await axios.post(
-        'http://localhost:8000/api/v1/auth/user/logoutUser',
+        `${LOGOUT_API}`,
         {},
         { withCredentials: true }
       );
@@ -43,7 +44,7 @@ const Sidebar = ({ devices, roomId }) => {
   };
   const handelGetUserDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/v1/auth/${user?._id}`, {
+      const res = await axios.get(`${GET_USER_DETAILS_API}/${user?._id}`, {
         withCredentials: true
       });
 

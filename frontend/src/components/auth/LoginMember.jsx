@@ -7,6 +7,7 @@ import { Building, Loader2, Lock, Mail } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { LOGIN_MEMBER_API } from "@/utils/constants";
 
 const LoginMember = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ const LoginMember = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/v1/auth/member/login",
+        `${LOGIN_MEMBER_API}`,
         { email, password, roomId },
         { withCredentials: true }
       );

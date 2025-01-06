@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { GET_USER_DETAILS_API, LOGOUT_API, REMOVE_MEMBER_API } from "@/utils/constants";
 
 
 const AdminUserDetails = () => {
@@ -32,7 +33,7 @@ const AdminUserDetails = () => {
         try {
             if (user1._id === userId) {
                 const res = await axios.post(
-                    'http://localhost:8000/api/v1/auth/user/logoutUser',
+                    `${LOGOUT_API}`,
                     {},
                     { withCredentials: true }
                 );
@@ -62,7 +63,7 @@ const AdminUserDetails = () => {
     useEffect(() => {
         const handelGetUserDetails = async () => {
             try {
-                const res = await axios.get(`http://localhost:8000/api/v1/auth/${userId}`, {
+                const res = await axios.get(`${GET_USER_DETAILS_API}/${userId}`, {
                     withCredentials: true
                 });
 
@@ -96,7 +97,7 @@ const AdminUserDetails = () => {
         const roomId = user1.room;
 
         try {
-            const res = await axios.delete(`http://localhost:8000/api/v1/rooms/admin/remove/${roomId}`, {
+            const res = await axios.delete(`${REMOVE_MEMBER_API}/${roomId}`, {
                 data: { memberId },
                 withCredentials: true
             });
