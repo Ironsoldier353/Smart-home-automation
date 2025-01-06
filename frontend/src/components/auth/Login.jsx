@@ -9,6 +9,7 @@ import { Lock, User, Loader2, Home } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/authSlice';
 import { toast } from 'sonner';
+import { LOGIN_ADMIN_API } from '@/utils/constants';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -25,7 +26,7 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        'http://localhost:8000/api/v1/auth/admin/login',
+        `${LOGIN_ADMIN_API}`,
         { username, password },
         { withCredentials: true }
       );

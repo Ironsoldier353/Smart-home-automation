@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, Loader2, Home } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { SIGNUP_ADMIN_API } from '@/utils/constants';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const Signup = () => {
     setUsername('');
 
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/auth/admin/register', { email, password });
+      const response = await axios.post(`${SIGNUP_ADMIN_API}`, { email, password });
 
       if (response.data.success) {
         setUsername(response.data.user.username);

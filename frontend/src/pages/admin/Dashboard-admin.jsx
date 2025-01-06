@@ -19,6 +19,7 @@ import { logout } from '@/redux/authSlice';
 import { persistStore } from 'redux-persist'
 import store from '@/redux/store';
 import { toast } from 'sonner';
+import { GET_USER_COUNT_API, GET_USER_DETAILS_API, LOGOUT_API } from '@/utils/constants';
 
 const DashboardAdmin = () => {
   const { roomId } = useParams();
@@ -34,7 +35,7 @@ const DashboardAdmin = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        'http://localhost:8000/api/v1/auth/user/logoutUser',
+        `${LOGOUT_API}`,
         {},
         { withCredentials: true }
       );
@@ -56,7 +57,7 @@ const DashboardAdmin = () => {
   const getUserCount = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/v1/auth/admin/${roomId}/getUserCount`,
+        `${GET_USER_COUNT_API}/${roomId}`,
         { withCredentials: true }
       );
 
@@ -70,7 +71,7 @@ const DashboardAdmin = () => {
 
   const handelGetUserDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/v1/auth/${user?._id}`, {
+      const res = await axios.get(`${GET_USER_DETAILS_API}/${user?._id}`, {
         withCredentials: true
       });
 
@@ -230,7 +231,7 @@ const DashboardAdmin = () => {
                         <Info className="w-6 h-6 text-indigo-600 group-hover:text-indigo-700" />
                       </div>
                       <span className="font-medium text-gray-700 group-hover:text-gray-900">
-                        Room Information
+                        Room Users
                       </span>
                       <RoomDetails roomId={roomId} />
                     </div>

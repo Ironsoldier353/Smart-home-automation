@@ -4,6 +4,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { GENERATE_ROOM_DETAILS_API } from '@/utils/constants';
 
 const RoomDetails = ({ roomId }) => {
   const [roomDetails, setRoomDetails] = useState(null);
@@ -20,7 +21,7 @@ const RoomDetails = ({ roomId }) => {
 
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/v1/rooms/admin/room-details/${roomId}`,
+        `${GENERATE_ROOM_DETAILS_API}/${roomId}`,
         { withCredentials: true }
       );
       if (response.data.success) {

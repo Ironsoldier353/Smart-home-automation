@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, Key, Loader2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import { ADD_MEMBER_API } from "@/utils/constants";
 
 const JoinMember = () => {
   const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ const JoinMember = () => {
     setMessage("");
 
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/rooms/member/add", {
+      const response = await axios.post(`${ADD_MEMBER_API}`, {
         email,
         password,
         inviteCode,

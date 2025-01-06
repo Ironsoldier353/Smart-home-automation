@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { FiKey } from 'react-icons/fi';  // Importing an icon
 import { toast } from 'sonner';
+import { GENERATE_INVITE_CODE_API } from '@/utils/constants';
 
 const InviteCodeButton = ({ roomId }) => {
   const [inviteCode, setInviteCode] = useState(null);
@@ -15,7 +16,7 @@ const InviteCodeButton = ({ roomId }) => {
 
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/v1/rooms/admin/${roomId}/invite-code`,
+        `${GENERATE_INVITE_CODE_API}/${roomId}`,
         {},
         {
           withCredentials: true, // Ensures cookies are sent with the request

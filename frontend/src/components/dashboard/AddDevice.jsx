@@ -3,6 +3,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { toast } from "sonner";
+import { REGISTER_DEVICES_API } from "@/utils/constants";
 
 
 const AddDevice = ({ onDeviceRegistered, roomId }) => {
@@ -17,7 +18,7 @@ const AddDevice = ({ onDeviceRegistered, roomId }) => {
     e.preventDefault();
     try {
       const newDevice = { deviceName, ssid, password, macAddress };
-      const response = await axios.post(`http://localhost:8000/api/v1/devices/register/${roomId}`, newDevice);
+      const response = await axios.post(`${REGISTER_DEVICES_API}/${roomId}`, newDevice);
 
       if (response.data.success) {
         onDeviceRegistered(response.data.device);
