@@ -85,6 +85,12 @@ const LandingPage = () => {
         ) : (
           <div className="flex space-x-6">
             <Link
+              to="/quick-guide"
+              className="bg-gradient-to-r from-purple-800 to-teal-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-md"
+            >
+              Quick Guide
+            </Link>
+            <Link
               to="/find-room"
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-md"
             >
