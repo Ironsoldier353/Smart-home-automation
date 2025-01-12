@@ -107,13 +107,13 @@ const QuickGuide = () => {
       <div
         key={index}
         className={`flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-6 ${
-          index % 2 === 0 ? "" : "sm:flex-row-reverse"
+          index % 2 === 1 ? "" : "sm:flex-row-reverse"
         }`}
       >
         <img
           src={section.images[0].src}
           alt={section.title}
-          className="w-full sm:w-1/2 rounded-lg shadow-lg cursor-pointer transform transition-transform duration-500 hover:scale-110"
+          className="w-full sm:w-1/2 rounded-lg shadow-lg cursor-pointer transform transition-transform duration-500 hover:scale-105"
           onClick={() => openModal(section)}
         />
         <div className="w-full sm:w-1/2">
