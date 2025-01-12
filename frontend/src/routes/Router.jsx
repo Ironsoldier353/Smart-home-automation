@@ -15,16 +15,18 @@ import ProtectedRoute1 from '../components/ProtectedRoute1';
 import DashboardDeviceSetup from '../components/dashboard/DashBoardDeviceSetup';
 import DeviceSetup from '@/components/dashboard/DeviceSetup';
 import AdminUserDetails from '@/components/admin/adminUserDetails';
+import QuickGuide from '../components/QuickGuide';
+
 // Define your routes
 const browserRouter = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />
   },
-  // {
-  //   path: "/quick-guide",
-  //   element: <QuickGuide />
-  // },
+  {
+    path: "/quick-guide",
+    element: <QuickGuide />
+  },
   {
     path: "/setup-room",
     element: <SetupRoom />
