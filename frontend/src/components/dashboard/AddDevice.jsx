@@ -17,8 +17,10 @@ const AddDevice = ({ onDeviceRegistered, roomId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const newDevice = { deviceName, ssid, password, macAddress };
-      const response = await axios.post(`${REGISTER_DEVICES_API}/${roomId}`, newDevice);
+      const newDevice = { deviceName,macAddress, ssid, password };
+      const response = await axios.post(`${REGISTER_DEVICES_API}/${roomId}`,{ newDevice},{
+        withCredentials: true,
+      } );
 
       if (response.data.success) {
         onDeviceRegistered(response.data.device);
