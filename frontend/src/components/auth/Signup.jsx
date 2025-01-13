@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, Loader2, Home } from 'lucide-react';
+import { Mail, Lock, Loader2, Home, Shield, BadgeCheck } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { SIGNUP_ADMIN_API } from '@/utils/constants';
@@ -11,6 +11,8 @@ import { SIGNUP_ADMIN_API } from '@/utils/constants';
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [securityQuestion, setSecurityQuestion] = useState('');
+  const [securityAnswer, setSecurityAnswer] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
@@ -22,7 +24,12 @@ const Signup = () => {
     setUsername('');
 
     try {
-      const response = await axios.post(`${SIGNUP_ADMIN_API}`, { email, password });
+      const response = await axios.post(`${SIGNUP_ADMIN_API}`, {
+        email,
+        password,
+        securityQuestion,
+        securityAnswer
+      });
 
       if (response.data.success) {
         setUsername(response.data.user.username);
@@ -30,6 +37,8 @@ const Signup = () => {
 
         setEmail('');
         setPassword('');
+        setSecurityQuestion('');
+        setSecurityAnswer('');
         toast.success(response.data.message);
       }
     } catch (error) {
@@ -59,7 +68,7 @@ const Signup = () => {
               Create an Account
             </CardTitle>
             <CardDescription className="text-center">
-              Enter your email and password to register
+              Enter your email, password, and security details to register
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -92,6 +101,51 @@ const Signup = () => {
                     required
                     className="pl-9"
                     placeholder="Enter your password"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="securityQuestion">Security Question</Label>
+                <div className="relative">
+                  <Shield className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <select
+                    id="securityQuestion"
+                    value={securityQuestion}
+                    onChange={(e) => setSecurityQuestion(e.target.value)}
+                    required
+                    className="pl-9 w-full border rounded-lg py-2"
+                  >
+                    <option value="" disabled>Select a security question</option>
+                    <option value="What is your favorite color?">What is your favorite color?</option>
+                    <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                    <option value="What is your mother’s maiden name?">What is your mother’s maiden name?</option>
+                    <option value="What was the name of the street you grew up on?">What was the name of the street you grew up on?</option>
+                    <option value="What is your favorite book or movie?">What is your favorite book or movie?</option>
+                    <option value="What was the make and model of your first car?">What was the make and model of your first car?</option>
+                    <option value="What is your childhood nickname?">What is your childhood nickname?</option>
+                    <option value="In what city were you born?">In what city were you born?</option>
+                    <option value="What is your mother’s middle name?">What is your mother’s middle name?</option>
+                    <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
+                    <option value="What is the name of your best friend from childhood?">What is the name of your best friend from childhood?</option>
+                    <option value="What was the name of your first teacher?">What was the name of your first teacher?</option>
+                  </select>
+                </div>
+              </div>
+
+
+              <div className="space-y-2">
+                <Label htmlFor="securityAnswer">Security Answer</Label>
+                <div className="relative">
+                  <BadgeCheck className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="securityAnswer"
+                    type="text"
+                    value={securityAnswer}
+                    onChange={(e) => setSecurityAnswer(e.target.value)}
+                    required
+                    className="pl-9"
+                    placeholder="Enter your answer in one word. e.g. Blue"
                   />
                 </div>
               </div>

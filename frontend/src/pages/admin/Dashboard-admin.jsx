@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Shield, LogOut, Users, Key, Mail, Info } from 'lucide-react';
+import { Shield, LogOut, Users, Key, Mail, Info, Laptop, Copy, Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +27,21 @@ const DashboardAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [userCount, setUserCount] = useState('');
   const [userDetails, setUserDetails] = useState('');
+  const [copied, setCopied] = useState(false);
   const dispatch = useDispatch();
   let persistor = persistStore(store);
   const user = useSelector((state) => state.auth?.user);
+
+  const copyRoomId = async () => {
+    try {
+      await navigator.clipboard.writeText(roomId);
+      setCopied(true);
+      toast.success('Room ID copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy Room ID');
+    }
+  };
 
   const logoutHandler = async () => {
     setLoading(true);
@@ -127,14 +139,36 @@ const DashboardAdmin = () => {
               <CardHeader className="border-b">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl font-semibold">Room Information</CardTitle>
-                  <Badge variant="outline" className="font-mono">
-                    {roomId}
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant="outline" className="font-mono">
+                      {roomId}
+                    </Badge>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-2 hover:bg-gray-100"
+                            onClick={copyRoomId}
+                          >
+                            {copied ? (
+                              <Check className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <Copy className="w-4 h-4 text-gray-600" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{copied ? 'Copied!' : 'Copy Room ID'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <button
                     onClick={getUserCount}
                     className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
@@ -152,7 +186,6 @@ const DashboardAdmin = () => {
                       </span>
                     </div>
                   </button>
-
 
                   <Link
                     to={`/admin/dashboard/${user.room}/device-setup`}
@@ -172,7 +205,6 @@ const DashboardAdmin = () => {
                     </div>
                   </Link>
 
-
                   <button
                     onClick={handelGetUserDetails}
                     className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
@@ -188,10 +220,28 @@ const DashboardAdmin = () => {
                         User Details
                       </span>
                       <span className="text-sm text-gray-500 group-hover:text-gray-700">
-                        User Informations
+                        User Information
                       </span>
                     </div>
                   </button>
+
+                  <Link
+                    to={`/admin/${user.room}/store/mac-addresses`}
+                    className="group relative p-6 rounded-lg border border-gray-200 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="relative flex flex-col items-center space-y-3">
+                      <div className="p-3 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 group-hover:from-blue-200 group-hover:to-purple-200">
+                        <Laptop className="w-6 h-6 text-indigo-600 group-hover:text-indigo-700" />
+                      </div>
+                      <span className="font-medium text-gray-700 group-hover:text-gray-900">
+                        MAC Addresses
+                      </span>
+                      <span className="text-sm text-gray-500 group-hover:text-gray-700">
+                        Store Mac Addresses
+                      </span>
+                    </div>
+                  </Link>
                 </div>
               </CardContent>
             </Card>

@@ -22,10 +22,14 @@ export const GENERATE_INVITE_CODE_API = "http://localhost:8000/api/v1/rooms/admi
 
 export const GENERATE_ROOM_DETAILS_API = "http://localhost:8000/api/v1/rooms/admin/room-details";
 
-export const REGISTER_DEVICES_API = "http://localhost:8000/api/v1/devices/register"
+export const REGISTER_DEVICES_API = "http://localhost:8000/api/v1/devices/register";
 
-export const GET_DEVICES_API = "http://localhost:8000/api/v1/devices/get"
+export const GET_DEVICES_API = "http://localhost:8000/api/v1/devices/get";
 
-export const RENAME_DEVICE_API = "http://localhost:8000/api/v1/devices/rename"
+export const RENAME_DEVICE_API = "http://localhost:8000/api/v1/devices/rename";
 
-export const TOGGLE_DEVICE_STATUS_API = "http://localhost:8000/api/v1/devices/sttus"
+export const TOGGLE_DEVICE_STATUS_API = "http://localhost:8000/api/v1/devices/sttus";
+
+export const ADD_MAC_ADDRESS_API = "http://localhost:8000/api/v1/rooms/store-mac";
+
+export const FORGOT_USERNAME_API = "http://localhost:8000/api/v1/auth/admin/forgetusername";
