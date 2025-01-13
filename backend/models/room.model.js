@@ -23,7 +23,10 @@ const roomSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'Device' 
     }
-  ] 
+  ],
+  macAddress: [{ 
+    type: String, 
+  }]
 });
 
 export const Room =  mongoose.model('Room', roomSchema);
