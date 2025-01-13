@@ -1,10 +1,18 @@
 import { Device } from "../models/devices.model.js";
 import { Room } from "../models/room.model.js";
+import axios from "axios";
 
 
 export const registerDevice = async (req, res) => {
-    const { deviceName, macAddress, ssid, password } = req.body;
-    const { roomId } = req.params;
+    const { newDevice } = req.body;
+    if (!newDevice) {
+        return res.status(400).json({ message: "newDevice object is required.", success: false });
+    }
+
+    const { deviceName, macAddress, ssid, password } = newDevice;
+
+    const roomId = req.roomId;
+
 
     // Validate required fields
     if (!deviceName || !macAddress || !ssid || !password) {
@@ -12,23 +20,27 @@ export const registerDevice = async (req, res) => {
     }
 
     if (!roomId) {
-        return res.status(400).json({ message: "Room ID is required." , success: false});
+        return res.status(400).json({ message: "Room ID is required.", success: false });
     }
 
     try {
         // Check if the room exists
         const room = await Room.findById(roomId);
         if (!room) {
-            return res.status(404).json({ message: "Room not found." , success: false});
+            return res.status(404).json({ message: "Room not found.", success: false });
         }
 
-        // Count devices with the same MAC address in the same room
-        const deviceCount = await Device.countDocuments({ macAddress, room: roomId });
-        if (deviceCount >= 4) {
-            return res.status(400).json({
-                message: "A maximum of 4 devices with the same MAC address are allowed in a room.",
-                success: false,
-            });
+        // Check if the device already exists
+        const existingDevice = await Device.findOne({ macAddress });
+        if (existingDevice) {
+            return res.status(409).json({ message: "Device already exists. Please Give another proper MAC Address...", success: false });
+        }
+
+        const validationResponse = await axios.post('http://localhost:8000/api/v1/devices/validateDevice', { macAddress });
+
+
+        if (!validationResponse.data.success) {
+            return res.status(400).json({ message: "MAC address mismatch. Please try again.", success: false });
         }
 
         // Create a new device
@@ -64,12 +76,47 @@ export const registerDevice = async (req, res) => {
     }
 };
 
+//api endpoint for esp to validate the mac and sending the ssid and password
+export const validateDevices = async (req, res) => {
+    //this mac add comes from esp
+    const { macAddress } = req.body;
+
+    if (!macAddress) {
+        return res.status(400).json({ message: "MAC address is required.", success: false });
+    }
+
+    try {
+        // Find the device by MAC address
+        const device = await Device.findOne({ macAddress });
+
+        if (!device) {
+            // MAC address not found, log error and delete entry
+            await Device.deleteOne({ macAddress }); // Delete the device entry with the mismatched MAC address
+            return res.status(400).json({
+                message: "MAC address mismatch from the ESP's Mac Address. Device entry removed.",
+                success: false,
+            });
+        }
+
+        // Send the SSID and password back to the ESP if MAC address is found
+        res.status(200).json({
+            ssid: device.ssid,
+            password: device.password,
+            success: true,
+        });
+    } catch (err) {
+        console.error("Error validating device:", err);
+        res.status(500).json({ message: "Internal server error.", success: false });
+    }
+};
+
+
 
 export const getDevicesByRoom = async (req, res) => {
     const { roomId } = req.params;
 
     if (!roomId) {
-        return res.status(400).json({ message: "Room ID is required",   success: false});
+        return res.status(400).json({ message: "Room ID is required", success: false });
     }
 
     try {
@@ -77,11 +124,11 @@ export const getDevicesByRoom = async (req, res) => {
         const room = await Room.findById(roomId).populate('devices');
 
         if (!room) {
-            return res.status(404).json({ message: "Room not found" , success: false});
+            return res.status(404).json({ message: "Room not found", success: false });
         }
 
         if (room.devices.length === 0) {
-            return res.status(404).json({ message: "No devices found in this room" , success: false});
+            return res.status(404).json({ message: "No devices found in this room", success: false });
         }
 
         res.status(200).json({ devices: room.devices, success: true });
@@ -100,7 +147,7 @@ export const renameDevice = async (req, res) => {
     }
 
     if (!roomId || !deviceId) {
-        return res.status(400).json({ message: "Room ID and Device ID are required" , success: false});
+        return res.status(400).json({ message: "Room ID and Device ID are required", success: false });
     }
 
     try {
@@ -146,17 +193,19 @@ export const changeDeviceStatus = async (req, res) => {
 
         const room = await Room.findById(roomId).populate('devices');
         if (!room) {
-            return res.status(404).json({ message: "Room not found. please try again with different credentials..." ,
-            success: false
+            return res.status(404).json({
+                message: "Room not found. please try again with different credentials...",
+                success: false
             });
         }
 
 
         const device = room.devices.find(device => device._id.toString() === deviceId);
         if (!device) {
-            return res.status(404).json({ message: "Device not found in this room...",
-            success: false
-             });
+            return res.status(404).json({
+                message: "Device not found in this room...",
+                success: false
+            });
         }
 
         const newStatus = device.status === 'on' ? 'off' : 'on';

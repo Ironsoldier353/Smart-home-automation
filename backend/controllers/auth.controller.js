@@ -5,12 +5,18 @@ import { generateToken } from '../utils/generateToken.js';
 import { generateInviteCode } from '../utils/generateInviteCode.js';
 
 export const registerAdmin = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, securityQuestion, securityAnswer } = req.body;
+
+  if (!email || !password || !securityQuestion || !securityAnswer) {
+    return res.status(400).json({ message: 'All fields are required', success: false });
+  }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) return res.status(400).json({ message: 'Email already exists', success: false });
 
   const hashedPassword = await bcrypt.hash(password, 10);
+  const lowerCaseSecurityAnswer = securityAnswer.toLowerCase();
+  const hashedAnswer = await bcrypt.hash(lowerCaseSecurityAnswer, 10);
   const username = `user_${Math.random().toString(36).substr(2, 6)}`;
 
   const newUser = await User.create({
@@ -18,6 +24,8 @@ export const registerAdmin = async (req, res) => {
     password: hashedPassword,
     username,
     role: 'admin',
+    securityQuestion,
+    securityAnswer: hashedAnswer,
   });
 
   const room = await Room.create({
@@ -33,9 +41,10 @@ export const registerAdmin = async (req, res) => {
   res.status(201).json({ user: newUser, token: generateToken(newUser._id), message: 'Admin registered successfully', success: true });
 };
 
-
 export const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
+
+  
 
   const user = await User.findOne({ username });
   if (!user) return res.status(404).json({ message: 'User not found', success: false });
@@ -53,10 +62,11 @@ export const loginAdmin = async (req, res) => {
 
 
 
+
+
   //console.log(user);
   res.json({ user, token: generateToken(user._id), success: true, message: 'Admin Logged in successfully' });
 };
-
 
 export const loginMember = async (req, res) => {
   const { email, password, roomId } = req.body;
@@ -74,7 +84,6 @@ export const loginMember = async (req, res) => {
 
   res.json({ user, token: generateToken(user._id), success: true, message: 'Member Logged in successfully' });
 };
-
 
 export const logout = (req, res) => {
   try {
@@ -94,8 +103,6 @@ export const logout = (req, res) => {
   }
 };
 
-
-
 export const getUserDetails = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -107,7 +114,6 @@ export const getUserDetails = async (req, res) => {
     res.status(500).json({ message: 'Server error. Please Try again...', success: false, error: error.message });
   }
 };
-
 
 export const getAllUserCountFromRoomId = async (req, res) => {
   try {
@@ -147,5 +153,50 @@ export const getUserbyEmail = async (req, res) => {
   }
   catch (error) {
     res.status(500).json({ message: 'Server error. Please Try again...', success: false, error: error.message });
+  }
+};
+
+export const forgotUsername = async (req, res) => {
+  const { email, role, securityQuestion, securityAnswer } = req.body;
+
+  if (!email || !role || !securityQuestion || !securityAnswer) {
+    return res.status(400).json({ 
+      message: 'Email, role, security question, and answer are required.', 
+      success: false 
+    });
+  }
+
+  try {
+    const user = await User.findOne({ email, role, securityQuestion });
+
+    if (!user) {
+      return res.status(404).json({ 
+        message: 'No user found with the provided email, role, and security question.', 
+        success: false 
+      });
+    }
+
+    const lowerCaseSecurityAnswer = securityAnswer.toLowerCase();
+
+    const isAnswerValid = await bcrypt.compare(lowerCaseSecurityAnswer, user.securityAnswer);
+
+    if (!isAnswerValid) {
+      return res.status(401).json({ 
+        message: 'Incorrect security answer.', 
+        success: false 
+      });
+    }
+
+    return res.status(200).json({ 
+      username: user.username, 
+      success: true, 
+      message: 'Username retrieved successfully.' 
+    });
+  } catch (error) {
+    console.error('Error retrieving username:', error);
+    return res.status(500).json({ 
+      message: 'An error occurred while retrieving the username.', 
+      success: false 
+    });
   }
 };
