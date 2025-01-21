@@ -17,6 +17,9 @@ import DeviceSetup from '@/components/dashboard/DeviceSetup';
 import AdminUserDetails from '@/components/admin/adminUserDetails';
 import QuickGuide from '../components/QuickGuide';
 import AddMacAddress from '@/components/admin/StoreMacAddress';
+import RegisterAdminGuide from '@/components/quick-guide/RegisterAdminGuide';
+import RegisterMemberGuide from '@/components/quick-guide/RegisterMemberGuide';
+import InviteMemberGuide from '@/components/quick-guide/InviteMemberGuide';
 
 // Define your routes
 const browserRouter = createBrowserRouter([
@@ -27,6 +30,18 @@ const browserRouter = createBrowserRouter([
   {
     path: "/quick-guide",
     element: <QuickGuide />
+  },
+  {
+    path: "/quick-guide/register-as-admin",
+    element: <RegisterAdminGuide />
+  },
+  {
+    path: "/quick-guide/register-as-member",
+    element: <RegisterMemberGuide />
+  },
+  {
+    path: "quick-guide/invite-member",
+    element: <InviteMemberGuide />
   },
   {
     path: "/setup-room",
