@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowRight, CheckCircle, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import s1 from "../../assets/quick-guide/add-member/s1.png";
 import s2 from "../../assets/quick-guide/add-member/s2.png";
 import s3 from "../../assets/quick-guide/add-member/s3.png";
@@ -34,6 +35,7 @@ const steps = [
 
 const InviteMemberGuide = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleNext = () => {
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
@@ -44,7 +46,16 @@ const InviteMemberGuide = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-600 to-blue-800 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-r from-blue-600 to-blue-800 flex items-center justify-center p-6 relative">
+      {/* Back to Quick Guide Button */}
+      <button
+        onClick={() => navigate("/quick-guide")}
+        className="absolute top-4 left-4 bg-gray-600 text-white py-2 px-4 rounded-md text-sm transition-opacity opacity-70 hover:opacity-100 hover:bg-gray-700 focus:outline-none"
+      >
+        <ArrowLeft className="w-4 h-4 inline-block mr-2" />
+        Quick Guide
+      </button>
+
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full p-8 relative">
         {/* Header */}
         <div className="text-center">
@@ -54,7 +65,7 @@ const InviteMemberGuide = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Invite and add Member Guide
+            Invite and Add Member Guide
           </motion.h1>
           <motion.p
             className="text-gray-600 mt-2"
@@ -104,7 +115,9 @@ const InviteMemberGuide = () => {
           </Button>
           <Button
             className={`flex items-center ${
-              currentStep === steps.length - 1 ? "opacity-50 pointer-events-none" : ""
+              currentStep === steps.length - 1
+                ? "opacity-50 pointer-events-none"
+                : ""
             }`}
             onClick={handleNext}
           >
