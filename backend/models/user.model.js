@@ -25,11 +25,11 @@ const userSchema = new mongoose.Schema({
   },
   securityQuestion: {
     type: String,
-    required: true
+    
   },
   securityAnswer: {
     type: String,
-    required: true
+    
   }
 });
 

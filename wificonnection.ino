@@ -2,37 +2,42 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-const char* temporarySSID = "TemporarySSID";
-const char* temporaryPassword = "TemporaryPassword";
-const char* serverURL = "http://<your-backend-endpoint>/api/v1/devices/validateDevice";
+const char *temporarySSID = "TemporarySSID";
+const char *temporaryPassword = "TemporaryPassword";
+const char *serverURL = "http://<your-backend-endpoint>/api/v1/devices/validateDevice";
 
 // Polling interval in milliseconds
 const unsigned long pollingInterval = 15000; // 15 seconds
 unsigned long lastPollTime = 0;
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
 
     // Connect to temporary Wi-Fi
     connectToWiFi(temporarySSID, temporaryPassword);
 }
 
-void loop() {
+void loop()
+{
     unsigned long currentTime = millis();
 
     // Poll the backend at the specified interval
-    if (currentTime - lastPollTime >= pollingInterval) {
+    if (currentTime - lastPollTime >= pollingInterval)
+    {
         lastPollTime = currentTime;
         validateDevice();
     }
 }
 
-void connectToWiFi(const char* ssid, const char* password) {
+void connectToWiFi(const char *ssid, const char *password)
+{
     Serial.print("Connecting to Wi-Fi: ");
     Serial.println(ssid);
 
     WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
+    while (WiFi.status() != WL_CONNECTED)
+    {
         delay(1000);
         Serial.print(".");
     }
@@ -41,8 +46,10 @@ void connectToWiFi(const char* ssid, const char* password) {
     Serial.println(WiFi.localIP());
 }
 
-void validateDevice() {
-    if (WiFi.status() == WL_CONNECTED) {
+void validateDevice()
+{
+    if (WiFi.status() == WL_CONNECTED)
+    {
         HTTPClient http;
         http.begin(serverURL);
         http.addHeader("Content-Type", "application/json");
@@ -54,7 +61,8 @@ void validateDevice() {
         // Send the MAC address for validation
         int httpResponseCode = http.POST(json);
 
-        if (httpResponseCode == 200) {
+        if (httpResponseCode == 200)
+        {
             String response = http.getString();
             Serial.println("Validation success: " + response);
 
@@ -66,14 +74,20 @@ void validateDevice() {
 
             // Connect to the new Wi-Fi network
             connectToWiFi(ssid.c_str(), password.c_str());
-        } else if (httpResponseCode == 400) {
+        }
+        else if (httpResponseCode == 400)
+        {
             Serial.println("Validation failed: MAC address not found in database.");
-        } else {
+        }
+        else
+        {
             Serial.printf("Error: HTTP response code %d\n", httpResponseCode);
         }
 
         http.end();
-    } else {
+    }
+    else
+    {
         Serial.println("Not connected to temporary Wi-Fi.");
     }
 }
