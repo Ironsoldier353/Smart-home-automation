@@ -36,15 +36,15 @@ export const registerDevice = async (req, res) => {
             return res.status(409).json({ message: "Device already exists. Please Give another proper MAC Address...", success: false });
         }
 
-        const validationResponse = await axios.post('http://localhost:8000/api/v1/devices/validateDevice', { macAddress });
+        // const validationResponse = await axios.post('http://localhost:8000/api/v1/devices/validateDevice', { macAddress });
 
 
-        if (!validationResponse.data.success) {
-            return res.status(400).json({ message: "MAC address mismatch. Please try again.", success: false });
-        }
+        // if (!validationResponse.data.success) {
+        //     return res.status(400).json({ message: "MAC address mismatch. Please try again.", success: false });
+        // }
 
         // Create a new device
-        const newDevice = new Device({
+        const newDevice = await Device.create({
             name: deviceName,
             macAddress,
             ssid,
