@@ -1,20 +1,11 @@
-import express, { Router } from 'express';
-import {
-    getAllAppliances,
-    getApplianceById,
-    createAppliance,
-    updateApplianceState,
-    deleteAppliance,
-} from '../controllers/appliances.controller.js';
-import { authMiddleware } from '../middlewares/auth.js';
+import express from 'express';
+import { getAllAppliances, getAppliancesByDeviceId, updateApplianceState } from '../controllers/appliances.controller.js';
 
-const router = Router();
+const router = express.Router();
 
-// Routes for appliances
-router.get('/',  getAllAppliances); // Get all appliances
-router.get('/:id', authMiddleware, getApplianceById); // Get a specific appliance by ID
-router.post('/',  createAppliance); // Create a new appliance
-router.patch('/state/:id', authMiddleware, updateApplianceState); // Update appliance state
-router.delete('/:id', authMiddleware, deleteAppliance); // Delete an appliance
+// Use consistent base route for appliance endpoints
+router.get('/', getAllAppliances);  // Get all appliances
+router.get('/device/:deviceId', getAppliancesByDeviceId);  // Get appliances by device ID
+router.put('/:id/state', updateApplianceState);  // Update an appliance's state
 
 export default router;
