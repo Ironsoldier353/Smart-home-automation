@@ -1,5 +1,5 @@
 import { Appliance } from '../models/appliances.model.js';
-import { Device } from '../models/devices.model.js'; // Assuming a `devices.model.js` exists
+import { Device } from '../models/devices.model.js'; 
 
 // Get all appliances
 export const getAllAppliances = async (req, res) => {
@@ -11,36 +11,37 @@ export const getAllAppliances = async (req, res) => {
     }
 };
 
-// Get a single appliance by ID
-export const getApplianceById = async (req, res) => {
+// Get appliances by device ID
+export const getAppliancesByDeviceId = async (req, res) => {
     try {
-        const { id } = req.params;
-        const appliance = await Appliance.findById(id).populate('device');
-        if (!appliance) {
-            return res.status(404).json({ message: 'Appliance not found' });
-        }
-        res.status(200).json(appliance);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching appliance', error });
-    }
-};
-
-// Create a new appliance
-export const createAppliance = async (req, res) => {
-    try {
-        const { device, state } = req.body;
+        const { deviceId } = req.params;
 
         // Validate device existence
-        const deviceExists = await Device.findById(device);
+        const deviceExists = await Device.findById(deviceId);
         if (!deviceExists) {
-            return res.status(400).json({ message: 'Invalid device ID' });
+            return res.status(404).json({ message: 'Device not found' });
         }
 
-        const appliance = new Appliance({ device, state });
-        await appliance.save();
-        res.status(201).json(appliance);
+        // Fetch appliances associated with the device
+        const appliances = await Appliance.find({ device: deviceId });
+        if (!appliances.length) {
+            // If no appliances, create 4 default appliances for the device
+            const defaultAppliances = [
+                { name: 'Appliance 1', state: 'off', device: deviceId },
+                { name: 'Appliance 2', state: 'off', device: deviceId },
+                { name: 'Appliance 3', state: 'off', device: deviceId },
+                { name: 'Appliance 4', state: 'off', device: deviceId },
+            ];
+
+            await Appliance.insertMany(defaultAppliances);
+
+            const createdAppliances = await Appliance.find({ device: deviceId });
+            return res.status(200).json(createdAppliances);
+        }
+
+        res.status(200).json(appliances);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating appliance', error });
+        res.status(500).json({ message: 'Error fetching appliances by device ID', error });
     }
 };
 
@@ -68,19 +69,5 @@ export const updateApplianceState = async (req, res) => {
         res.status(200).json(appliance);
     } catch (error) {
         res.status(500).json({ message: 'Error updating appliance state', error });
-    }
-};
-
-// Delete an appliance
-export const deleteAppliance = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const appliance = await Appliance.findByIdAndDelete(id);
-        if (!appliance) {
-            return res.status(404).json({ message: 'Appliance not found' });
-        }
-        res.status(200).json({ message: 'Appliance deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting appliance', error });
     }
 };
