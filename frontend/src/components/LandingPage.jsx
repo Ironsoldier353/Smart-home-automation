@@ -12,6 +12,7 @@ const LandingPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Smooth scroll to section
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
     if (section) {
@@ -71,17 +72,25 @@ const LandingPage = () => {
         </p>
 
         {user ? (
-          <Link
-            to={`/admin/dashboard/${user.room}`}
-            className="group relative inline-flex items-center space-x-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-8 rounded-xl hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-lg hover:shadow-pink-500/25"
-          >
-            <FaChartLine className="text-xl group-hover:rotate-12 transition-transform duration-300" />
-            <span className="relative">
-              <span className="block transform group-hover:-translate-y-1 transition-transform duration-300">
-                Go to Dashboard
+          <div className="flex space-x-6">
+            <Link
+              to="/quick-guide"
+              className="bg-gradient-to-r from-purple-800 to-teal-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-md"
+            >
+              Quick Guide
+            </Link>
+            <Link
+              to={`/admin/dashboard/${user.room}`}
+              className="group relative inline-flex items-center space-x-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-8 rounded-xl hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-lg hover:shadow-pink-500/25"
+            >
+              <FaChartLine className="text-xl group-hover:rotate-12 transition-transform duration-300" />
+              <span className="relative">
+                <span className="block transform group-hover:-translate-y-1 transition-transform duration-300">
+                  Go to Dashboard
+                </span>
               </span>
-            </span>
-          </Link>
+            </Link>
+          </div>
         ) : (
           <div className="flex space-x-6">
             <Link
@@ -105,8 +114,9 @@ const LandingPage = () => {
           </div>
         )}
       </section>
-       {/* Aim Section */}
-       <section id="aim" className="py-16 md:py-24 bg-gray-800 text-center px-6">
+
+      {/* Aim Section */}
+      <section id="aim" className="py-16 md:py-24 bg-gray-800 text-center px-6">
         <div className="max-w-4xl mx-auto space-y-8">
           <h2 className="text-3xl md:text-4xl font-semibold text-white mb-6">
             Our Vision & Mission

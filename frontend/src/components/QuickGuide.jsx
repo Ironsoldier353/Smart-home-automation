@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import Modal from "react-modal";
 import s1 from "../assets/images/feature1.png";
 
@@ -128,6 +129,13 @@ const QuickGuide = () => {
       <h1 className="text-5xl font-bold text-center mb-12 text-green-400 animate__animated animate__fadeIn">
         Quick Guide
       </h1>
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-medium py-2 px-8 rounded-full text-sm shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 backdrop-blur-md bg-opacity-80 hover:bg-opacity-100 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-purple-400"
+      >
+        Go to Home
+      </button>
+
       <div className="space-y-12 w-full flex-grow">
         {sections.map((section, index) => (
           <div
