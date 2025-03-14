@@ -4,7 +4,7 @@ import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 
-router.post('/register/:roomId', registerDevice); //Add the authMiddleware here
+router.post('/register/:roomId',authMiddleware, registerDevice); 
 
 router.get('/get/:roomId', authMiddleware, getDevicesByRoom);
 

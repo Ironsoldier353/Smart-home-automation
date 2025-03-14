@@ -11,6 +11,8 @@ export const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.id).select('-password'); 
     req.user = user;
     req.roomId = user.room;
+    console.log("User: ", user);
+    console.log("Room ID: ", user.room);
   
     next(); 
   } catch (error) {

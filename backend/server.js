@@ -11,6 +11,7 @@ dotenv.config({
 
 const app = express();
 
+
 app.use(express.json());
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -22,12 +23,16 @@ const PORT = process.env.PORT || 8000;
 
 connectDB().then(() => {
     console.log('MongoDB connected successfully.');
-    app.listen(PORT,'0.0.0.0', () => {
+
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`⚙️ Server is running at port : ${PORT}`);
     });
 }).catch((err) => {
     console.log("MongoDB connection failed: ", err);
 });
+
+
+
 
 import authRoutes from './routes/auth.route.js';
 app.use('/api/v1/auth', authRoutes);

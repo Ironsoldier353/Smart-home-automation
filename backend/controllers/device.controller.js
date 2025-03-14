@@ -12,6 +12,8 @@ export const registerDevice = async (req, res) => {
     const { deviceName, macAddress, ssid, password } = newDevice;
 
     const roomId = req.roomId;
+    console.log("req: ", req.user);
+    console.log("Room ID: ", roomId);
 
 
     // Validate required fields

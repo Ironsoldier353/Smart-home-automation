@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,8 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { SIGNUP_ADMIN_API } from '@/utils/constants';
 
+import { useNavigate } from 'react-router-dom';
+
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +19,8 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +45,9 @@ const Signup = () => {
         setSecurityQuestion('');
         setSecurityAnswer('');
         toast.success(response.data.message);
+        setTimeout(() => {
+          navigate(`/login`);
+        }, 1500);
       }
     } catch (error) {
       setMessage(error.response?.data?.message || 'Something went wrong.');
@@ -172,11 +180,7 @@ const Signup = () => {
               </div>
             )}
 
-            {username && (
-              <div className="mt-2 text-sm font-medium text-primary">
-                Your generated username: <strong>{username}</strong>
-              </div>
-            )}
+
 
             <div className="mt-4 text-center">
               <p className="text-l text-muted-foreground">Already have an account?</p>

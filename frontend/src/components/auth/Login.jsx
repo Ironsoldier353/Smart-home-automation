@@ -108,7 +108,7 @@ const Login = () => {
               Welcome ADMIN
             </CardTitle>
             <CardDescription className="text-center">
-              Enter your username and password to login
+              Check Your registered Email for credentials.
             </CardDescription>
           </CardHeader>
           <CardContent>
