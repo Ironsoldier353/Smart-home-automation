@@ -101,6 +101,7 @@ export const validateDevices = async (req, res) => {
         res.status(200).json({
             ssid: device.ssid,
             password: device.password,
+            deviceId: device._id.toString(),
             success: true,
         });
     } catch (err) {
@@ -181,6 +182,98 @@ export const renameDevice = async (req, res) => {
     }
 };
 
+// esp 32 will send the status of the device
+export const getDeviceControl = async (req, res) => {
+    const { deviceId } = req.query;
+
+    if (!deviceId) {
+        return res.status(400).json({
+            message: "Device ID is required.",
+            success: false
+        });
+    }
+
+    try {
+        // Find the device by deviceId
+        const device = await Device.findById(deviceId);
+
+        if (!device) {
+            return res.status(404).json({
+                message: "Device not found.",
+                success: false
+            });
+        }
+
+        // Return the current state of the device
+        res.status(200).json({
+            state: device.status === 'on',
+            success: true
+        });
+    } catch (err) {
+        console.error("Error retrieving device control status:", err);
+        res.status(500).json({
+            message: "Internal server error.",
+            success: false
+        });
+    }
+};
+
+// Update device state and handle confirmations
+export const updateDeviceControl = async (req, res) => {
+    const { deviceId, state, confirmed } = req.body;
+
+    if (!deviceId) {
+        return res.status(400).json({
+            message: "Device ID is required.",
+            success: false
+        });
+    }
+
+    try {
+        const device = await Device.findById(deviceId);
+
+        if (!device) {
+            return res.status(404).json({
+                message: "Device not found.",
+                success: false
+            });
+        }
+
+        // If this is a confirmation from the ESP32
+        if (confirmed === true) {
+            device.lastConfirmed = new Date();
+            device.isConfirmed = true;
+            await device.save();
+
+            return res.status(200).json({
+                message: "Device state confirmation received.",
+                success: true
+            });
+        }
+
+        // If this is a command from the web app to change the device state
+        const newStatus = state ? 'on' : 'off';
+        device.status = newStatus;
+        device.isConfirmed = false;
+        device.lastUpdated = new Date();
+
+        await device.save();
+
+        res.status(200).json({
+            message: `Device state updated to '${newStatus}'`,
+            device,
+            success: true
+        });
+    } catch (err) {
+        console.error("Error updating device control:", err);
+        res.status(500).json({
+            message: "Internal server error.",
+            success: false
+        });
+    }
+};
+
+
 export const changeDeviceStatus = async (req, res) => {
     const { roomId, deviceId } = req.params;
 
@@ -189,15 +282,13 @@ export const changeDeviceStatus = async (req, res) => {
     }
 
     try {
-
         const room = await Room.findById(roomId).populate('devices');
         if (!room) {
             return res.status(404).json({
-                message: "Room not found. please try again with different credentials...",
+                message: "Room not found. Please try again with different credentials...",
                 success: false
             });
         }
-
 
         const device = room.devices.find(device => device._id.toString() === deviceId);
         if (!device) {
@@ -209,16 +300,20 @@ export const changeDeviceStatus = async (req, res) => {
 
         const newStatus = device.status === 'on' ? 'off' : 'on';
 
+        // Update the device status
         device.status = newStatus;
+        device.isConfirmed = false;  // Mark as unconfirmed until ESP32 confirms
+        device.lastUpdated = new Date();
+
         await device.save();
 
-        await room.save();
         res.status(200).json({
             message: `Device status toggled successfully to '${newStatus}'`,
             device,
             success: true,
         });
     } catch (err) {
+        console.error("Error toggling device status:", err);
         res.status(500).json({
             message: "Error toggling device status",
             error: err.message,
