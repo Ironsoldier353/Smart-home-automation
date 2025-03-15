@@ -22,7 +22,7 @@ const DeviceSchema = new Schema({
 
     status: {
         type: String,
-        enum: ['on', 'off'],
+        enum: ['on', 'off', 'pending'],
         default: 'off'
     },
 

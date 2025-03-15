@@ -1,87 +1,162 @@
 #include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 #include <Preferences.h>
-#include <WebServer.h>
 
+// WiFi credentials
+const char *temporarySSID = "TemporarySSID";
+const char *temporaryPassword = "TemporaryPassword";
+const char *serverURL = "http://<your-backend-endpoint>/api/v1/devices/validateDevice";
+
+// Polling interval in milliseconds
+const unsigned long pollingInterval = 15000; // 15 seconds
+unsigned long lastPollTime = 0;
+
+// Device state
+bool isConfigured = false;
+String configuredSSID = "";
+String configuredPassword = "";
+
+// Preferences for storing WiFi credentials
 Preferences preferences;
-WebServer server(80);  // Create a web server on port 80
-
-// Function to get or generate a unique ID
-String getOrCreateUniqueID() {
-    String uniqueID = preferences.getString("uniqueID", ""); // Retrieve from memory
-    if (uniqueID.isEmpty()) {  // If it doesn't exist, generate a new one
-        uniqueID = WiFi.macAddress();  // Using MAC address as a unique ID
-        preferences.putString("uniqueID", uniqueID);  // Save it
-    }
-    return uniqueID;
-}
-
-// HTML page to be served
-const char* webPage = R"rawliteral(
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Smart Door Lock Configuration</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-    input[type=text], input[type=password] { width: 100%; padding: 12px; margin: 8px 0; }
-    button { padding: 12px 20px; font-size: 16px; }
-  </style>
-</head>
-<body>
-  <h1>Smart Door Lock Configuration</h1>
-  <p>Your Unique ID (MAC Address): %MAC_ADDRESS%</p>
-  <form action="/connect" method="POST">
-    <input type="text" name="ssid" placeholder="Enter your Wi-Fi SSID" required>
-    <input type="password" name="password" placeholder="Enter your Wi-Fi Password" required>
-    <button type="submit">Connect</button>
-  </form>
-</body>
-</html>
-)rawliteral";
-
-// Function to handle the root request
-void handleRoot() {
-    String uniqueID = getOrCreateUniqueID();
-    String page = webPage;
-    page.replace("%MAC_ADDRESS%", uniqueID);  // Replace placeholder with actual MAC address
-    server.send(200, "text/html", page);  // Send the modified HTML page
-}
-
-// Function to handle Wi-Fi connection
-void handleConnect() {
-    if (server.method() == HTTP_POST) {
-        String ssid = server.arg("ssid");
-        String password = server.arg("password");
-        
-        // Attempt to connect to the specified Wi-Fi
-        WiFi.begin(ssid.c_str(), password.c_str());
-        
-        // Wait for connection
-        while (WiFi.status() != WL_CONNECTED) {
-            delay(1000);
-            Serial.print(".");
-        }
-
-        Serial.println("\nConnected to Wi-Fi!");
-        // Here you can add code to redirect to another page or do something else.
-    }
-    server.send(200, "text/html", "<h1>Connecting...</h1>");  // A simple response after submission
-}
 
 void setup() {
     Serial.begin(115200);
-    preferences.begin("my-app", false);  // Open Preferences with namespace "my-app"
+    delay(1000);
+    Serial.println("\nESP32 Device Initialization");
     
-    // Start the server
-    server.on("/", HTTP_GET, handleRoot);
-    server.on("/connect", HTTP_POST, handleConnect);
-
-    // Start the server
-    server.begin();
-    Serial.println("HTTP server started");
+    // Initialize preferences
+    preferences.begin("wifi-config", false);
+    
+    // Check if device is already configured
+    isConfigured = preferences.getBool("configured", false);
+    
+    if (isConfigured) {
+        // Retrieve stored credentials
+        configuredSSID = preferences.getString("ssid", "");
+        configuredPassword = preferences.getString("password", "");
+        
+        Serial.println("Device already configured. Connecting to stored WiFi...");
+        connectToWiFi(configuredSSID.c_str(), configuredPassword.c_str());
+    } else {
+        Serial.println("Device not configured. Connecting to temporary WiFi...");
+        connectToWiFi(temporarySSID, temporaryPassword);
+    }
 }
 
 void loop() {
-    server.handleClient();  // Handle incoming client requests
+    unsigned long currentTime = millis();
+    
+    // Ensure WiFi is connected
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("WiFi connection lost. Reconnecting...");
+        if (isConfigured) {
+            connectToWiFi(configuredSSID.c_str(), configuredPassword.c_str());
+        } else {
+            connectToWiFi(temporarySSID, temporaryPassword);
+        }
+    }
+    
+    // Only poll for device validation if not yet configured
+    if (!isConfigured && currentTime - lastPollTime >= pollingInterval) {
+        lastPollTime = currentTime;
+        validateDevice();
+    }
+    
+    // Other tasks can go here
+    delay(100);
+}
+
+void connectToWiFi(const char *ssid, const char *password) {
+    Serial.print("Connecting to Wi-Fi: ");
+    Serial.println(ssid);
+    
+    WiFi.disconnect();
+    delay(500);
+    WiFi.begin(ssid, password);
+    
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+        delay(1000);
+        Serial.print(".");
+        attempts++;
+    }
+    
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("\nConnected to Wi-Fi!");
+        Serial.print("IP Address: ");
+        Serial.println(WiFi.localIP());
+    } else {
+        Serial.println("\nFailed to connect to WiFi!");
+    }
+}
+
+void validateDevice() {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+        http.begin(serverURL);
+        http.addHeader("Content-Type", "application/json");
+        
+        // Get the ESP32's MAC address
+        String macAddress = WiFi.macAddress();
+        Serial.print("Device MAC Address: ");
+        Serial.println(macAddress);
+        
+        // Create JSON payload
+        DynamicJsonDocument requestDoc(200);
+        requestDoc["macAddress"] = macAddress;
+        String json;
+        serializeJson(requestDoc, json);
+        
+        Serial.print("Sending validation request to server: ");
+        Serial.println(json);
+        
+        // Send the MAC address for validation
+        int httpResponseCode = http.POST(json);
+        Serial.print("HTTP Response Code: ");
+        Serial.println(httpResponseCode);
+        
+        if (httpResponseCode == 200) {
+            String response = http.getString();
+            Serial.println("Validation success: " + response);
+            
+            // Parse the response to get SSID and password
+            DynamicJsonDocument responseDoc(1024);
+            DeserializationError error = deserializeJson(responseDoc, response);
+            
+            if (!error) {
+                String newSSID = responseDoc["ssid"].as<String>();
+                String newPassword = responseDoc["password"].as<String>();
+                
+                if (newSSID.length() > 0 && newPassword.length() > 0) {
+                    // Store the new WiFi credentials
+                    preferences.putBool("configured", true);
+                    preferences.putString("ssid", newSSID);
+                    preferences.putString("password", newPassword);
+                    
+                    Serial.println("New WiFi credentials saved.");
+                    configuredSSID = newSSID;
+                    configuredPassword = newPassword;
+                    isConfigured = true;
+                    
+                    // Connect to the new Wi-Fi network
+                    Serial.println("Connecting to new WiFi network...");
+                    connectToWiFi(newSSID.c_str(), newPassword.c_str());
+                } else {
+                    Serial.println("Error: Received empty SSID or password");
+                }
+            } else {
+                Serial.print("JSON parsing error: ");
+                Serial.println(error.c_str());
+            }
+        } else if (httpResponseCode == 400) {
+            Serial.println("Validation failed: MAC address not found in database.");
+        } else {
+            Serial.printf("Error: HTTP response code %d\n", httpResponseCode);
+        }
+        
+        http.end();
+    } else {
+        Serial.println("Not connected to WiFi. Cannot validate device.");
+    }
 }

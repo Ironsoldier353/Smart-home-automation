@@ -38,12 +38,7 @@ export const registerDevice = async (req, res) => {
             return res.status(409).json({ message: "Device already exists. Please Give another proper MAC Address...", success: false });
         }
 
-        // const validationResponse = await axios.post('http://localhost:8000/api/v1/devices/validateDevice', { macAddress });
 
-
-        // if (!validationResponse.data.success) {
-        //     return res.status(400).json({ message: "MAC address mismatch. Please try again.", success: false });
-        // }
 
         // Create a new device
         const newDevice = await Device.create({
@@ -52,7 +47,7 @@ export const registerDevice = async (req, res) => {
             ssid,
             password,
             room: roomId,
-            status: "off",
+            status: "pending",
         });
 
         // Save the new device
@@ -69,9 +64,9 @@ export const registerDevice = async (req, res) => {
             success: true,
         });
     } catch (err) {
-        console.error("Error while registering device:", err);
+        console.error("Error while registering Your device:", err);
         res.status(500).json({
-            message: "Error saving device to the database.",
+            message: "Error while registering Your device. ",
             error: err.message,
             success: false,
         });
@@ -92,15 +87,17 @@ export const validateDevices = async (req, res) => {
         const device = await Device.findOne({ macAddress });
 
         if (!device) {
-            // MAC address not found, log error and delete entry
-            await Device.deleteOne({ macAddress }); // Delete the device entry with the mismatched MAC address
             return res.status(400).json({
                 message: "MAC address mismatch from the ESP's Mac Address. Device entry removed.",
                 success: false,
             });
         }
 
-        // Send the SSID and password back to the ESP if MAC address is found
+        if (device.status === "pending") {
+            device.status = "active";
+            await device.save();
+        }
+
         res.status(200).json({
             ssid: device.ssid,
             password: device.password,
