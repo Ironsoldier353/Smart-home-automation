@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, User, Loader2, Home, Mail, Users, Shield, BadgeCheck } from 'lucide-react';
+import { Lock, User, Loader2, Mail, Users, Shield, BadgeCheck, AlertCircle, CheckCircle } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { login } from '@/redux/authSlice';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { LOGIN_ADMIN_API, FORGOT_USERNAME_API } from '@/utils/constants';
+import logo from '../../assets/logo.webp';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -20,8 +21,6 @@ const Login = () => {
   const [securityAnswer, setSecurityAnswer] = useState('');
   const [loading, setLoading] = useState(false);
   const [forgotUsernameLoading, setForgotUsernameLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [forgotUsernameMessage, setForgotUsernameMessage] = useState('');
   const [showForgotUsername, setShowForgotUsername] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -29,7 +28,6 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
 
     try {
       const res = await axios.post(
@@ -41,13 +39,37 @@ const Login = () => {
       const user = res.data.user;
 
       if (res.data.success) {
-        setMessage('Login successful! Redirecting...');
         dispatch(login(user));
-        toast.success(res.data.message);
+
+        // Enhanced success toast
+        toast.success(res.data.message || 'Login successful!', {
+          duration: 4000,
+          position: "top-center",
+          icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+          description: "Redirecting to dashboard...",
+          className: "border-l-4 border-green-500 bg-white",
+          style: {
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }
+        });
       }
 
       if (!user.room) {
-        setMessage('Room not found for the admin. Please contact support.');
+        toast.error('Room not found for the admin', {
+          duration: 5000,
+          position: "top-center",
+          icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+          description: "Please contact support for assistance",
+          className: "border-l-4 border-red-500 bg-white",
+          style: {
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }
+        });
+        setLoading(false);
         return;
       }
 
@@ -55,8 +77,25 @@ const Login = () => {
         navigate(`/admin/dashboard/${user.room}`);
       }, 1500);
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Invalid credentials');
-      toast.error(error.response?.data?.message || 'Login failed');
+      const errorDetail = error.response?.data?.detail || '';
+
+      // Enhanced error toast
+      toast.error(error.response?.data?.message || 'Invalid credentials', {
+        duration: 5000,
+        position: "top-center",
+        icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+        description: errorDetail || 'Please check your username and password',
+        action: {
+          label: 'Dismiss',
+          onClick: () => toast.dismiss()
+        },
+        className: "border-l-4 border-red-500 bg-white",
+        style: {
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+        }
+      });
     } finally {
       setLoading(false);
     }
@@ -65,7 +104,6 @@ const Login = () => {
   const handleForgotUsername = async (e) => {
     e.preventDefault();
     setForgotUsernameLoading(true);
-    setForgotUsernameMessage('');
 
     try {
       const res = await axios.post(`${FORGOT_USERNAME_API}`, {
@@ -76,14 +114,52 @@ const Login = () => {
       });
 
       if (res.data.success) {
-        setForgotUsernameMessage(`Your username is: ${res.data.username}`);
-        toast.success(res.data.message);
+        // Enhanced success toast for username retrieval
+        toast.success('Username Retrieved!', {
+          duration: 4000,
+          position: "top-center",
+          icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+          description: `Your username is: ${res.data.username}`,
+          className: "border-l-4 border-green-500 bg-white",
+          style: {
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }
+        });
       } else {
-        setForgotUsernameMessage(res.data.message || 'Failed to retrieve username.');
+        toast.error(res.data.message || 'Failed to retrieve username', {
+          duration: 5000,
+          position: "top-center",
+          icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+          description: "Please check your information and try again",
+          className: "border-l-4 border-red-500 bg-white",
+          style: {
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }
+        });
       }
     } catch (error) {
-      setForgotUsernameMessage(error.response?.data?.message || 'Error retrieving username.');
-      toast.error(error.response?.data?.message || 'Request failed');
+      const errorDetail = error.response?.data?.detail || '';
+
+      toast.error(error.response?.data?.message || 'Error retrieving username', {
+        duration: 5000,
+        position: "top-center",
+        icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+        description: errorDetail || "Please verify your information and try again",
+        action: {
+          label: 'Dismiss',
+          onClick: () => toast.dismiss()
+        },
+        className: "border-l-4 border-red-500 bg-white",
+        style: {
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+        }
+      });
     } finally {
       setForgotUsernameLoading(false);
     }
@@ -91,24 +167,24 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-600 to-blue-700">
-      <div className="flex justify-end p-4">
-        <Button
-          variant="ghost"
-          className="flex items-center space-x-2 text-white"
-          onClick={() => window.location.href = '/'}
-        >
-          <Home className="w-5 h-5" />
-          <span>Go to Home</span>
-        </Button>
+      {/* Toaster component for toast notifications */}
+      <Toaster position="top-center" />
+
+      <div className="w-full flex items-center p-4 bg-blue-800">
+        <Link to="/" className="flex items-center gap-2 ml-4">
+          <img src={logo} alt="LumenHive Logo" className="h-10 w-auto" />
+          <span className="font-bold text-2xl text-white">LumenHive</span>
+        </Link>
       </div>
+
       <div className="flex items-center justify-center flex-grow">
         <Card className="w-96 shadow-xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
-              Welcome ADMIN
+              Welcome Admin
             </CardTitle>
             <CardDescription className="text-center">
-              Check Your registered Email for credentials.
+              Check your registered email for credentials
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -161,39 +237,25 @@ const Login = () => {
                   )}
                 </Button>
 
-                {message && (
-                  <div className={`mt-4 text-sm font-medium ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>
-                    {message}
-                  </div>
-                )}
-
-                <div className="relative mt-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-300" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">or</span>
-                  </div>
-                </div>
-
                 <div className="mt-4 text-center space-y-2">
                   <Button
                     variant="link"
-                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                    className="font-medium"
                     onClick={() => setShowForgotUsername(true)}
                   >
                     Forgot Username?
                   </Button>
-                  <p className="text-l text-muted-foreground">
-                    Not registered yet?{' '}
+
+                  <div className="mt-2">
+                    <p className="text-l text-muted-foreground">Not registered yet?</p>
                     <Button
                       variant="link"
-                      className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-                      onClick={() => window.location.href = '/signup'}
+                      className="font-medium"
+                      onClick={() => navigate('/signup')}
                     >
                       Register Here!
                     </Button>
-                  </p>
+                  </div>
                 </div>
               </form>
             ) : (
@@ -245,20 +307,19 @@ const Login = () => {
                       <option value="" disabled>Select a security question</option>
                       <option value="What is your favorite color?">What is your favorite color?</option>
                       <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-                      <option value="What is your mother’s maiden name?">What is your mother’s maiden name?</option>
+                      <option value="What is your mother's maiden name?">What is your mother&apos;s maiden name?</option>
                       <option value="What was the name of the street you grew up on?">What was the name of the street you grew up on?</option>
                       <option value="What is your favorite book or movie?">What is your favorite book or movie?</option>
                       <option value="What was the make and model of your first car?">What was the make and model of your first car?</option>
                       <option value="What is your childhood nickname?">What is your childhood nickname?</option>
                       <option value="In what city were you born?">In what city were you born?</option>
-                      <option value="What is your mother’s middle name?">What is your mother’s middle name?</option>
+                      <option value="What is your mother's middle name?">What is your mother&apos;s middle name?</option>
                       <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
                       <option value="What is the name of your best friend from childhood?">What is the name of your best friend from childhood?</option>
                       <option value="What was the name of your first teacher?">What was the name of your first teacher?</option>
                     </select>
                   </div>
                 </div>
-
 
                 <div className="space-y-2">
                   <Label htmlFor="securityAnswer">Security Answer</Label>
@@ -271,7 +332,7 @@ const Login = () => {
                       onChange={(e) => setSecurityAnswer(e.target.value)}
                       required
                       className="pl-9"
-                      placeholder="Enter your security answer"
+                      placeholder="Enter your answer in one word. e.g. Blue"
                     />
                   </div>
                 </div>
@@ -291,16 +352,10 @@ const Login = () => {
                   )}
                 </Button>
 
-                {forgotUsernameMessage && (
-                  <div className={`mt-4 text-sm font-medium ${forgotUsernameMessage.includes('Your username') ? 'text-green-500' : 'text-red-500'}`}>
-                    {forgotUsernameMessage}
-                  </div>
-                )}
-
                 <div className="mt-4 text-center">
                   <Button
                     variant="link"
-                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                    className="font-medium"
                     onClick={() => setShowForgotUsername(false)}
                   >
                     Back to Login
