@@ -6,7 +6,7 @@
 // WiFi credentials
 const char *temporarySSID = "TemporarySSID";
 const char *temporaryPassword = "TemporaryPassword";
-const char *serverURL = "http://<your-backend-endpoint>/api/v1/devices/validateDevice";
+const char *serverURL = "http://<your-backend-endpoint>/api/v1/devices/validatedevice";
 const char *controlURL = "http://<your-backend-endpoint>/api/v1/devices/control";
 
 // Pin configuration
