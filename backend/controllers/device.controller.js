@@ -1,6 +1,5 @@
 import { Device } from "../models/devices.model.js";
 import { Room } from "../models/room.model.js";
-import axios from "axios";
 
 
 export const registerDevice = async (req, res) => {
@@ -73,9 +72,8 @@ export const registerDevice = async (req, res) => {
     }
 };
 
-//api endpoint for esp to validate the mac and sending the ssid and password
 export const validateDevices = async (req, res) => {
-    //this mac add comes from esp
+  
     const { macAddress } = req.body;
 
     if (!macAddress) {
@@ -83,7 +81,7 @@ export const validateDevices = async (req, res) => {
     }
 
     try {
-        // Find the device by MAC address
+     
         const device = await Device.findOne({ macAddress });
 
         if (!device) {
@@ -107,33 +105,6 @@ export const validateDevices = async (req, res) => {
     } catch (err) {
         console.error("Error validating device:", err);
         res.status(500).json({ message: "Internal server error.", success: false });
-    }
-};
-
-
-
-export const getDevicesByRoom = async (req, res) => {
-    const { roomId } = req.params;
-
-    if (!roomId) {
-        return res.status(400).json({ message: "Room ID is required", success: false });
-    }
-
-    try {
-
-        const room = await Room.findById(roomId).populate('devices');
-
-        if (!room) {
-            return res.status(404).json({ message: "Room not found", success: false });
-        }
-
-        if (room.devices.length === 0) {
-            return res.status(404).json({ message: "No devices found in this room", success: false });
-        }
-
-        res.status(200).json({ devices: room.devices, success: true });
-    } catch (err) {
-        res.status(500).json({ message: "Error while fetching devices", error: err.message, success: false });
     }
 };
 
@@ -182,144 +153,8 @@ export const renameDevice = async (req, res) => {
     }
 };
 
-// esp 32 will send the status of the device
-export const getDeviceControl = async (req, res) => {
-    const { deviceId } = req.query;
-
-    if (!deviceId) {
-        return res.status(400).json({
-            message: "Device ID is required.",
-            success: false
-        });
-    }
-
-    try {
-        // Find the device by deviceId
-        const device = await Device.findById(deviceId);
-
-        if (!device) {
-            return res.status(404).json({
-                message: "Device not found.",
-                success: false
-            });
-        }
-
-        // Return the current state of the device
-        res.status(200).json({
-            state: device.status === 'on',
-            success: true
-        });
-    } catch (err) {
-        console.error("Error retrieving device control status:", err);
-        res.status(500).json({
-            message: "Internal server error.",
-            success: false
-        });
-    }
-};
-
-// Update device state and handle confirmations
-export const updateDeviceControl = async (req, res) => {
-    const { deviceId, state, confirmed } = req.body;
-
-    if (!deviceId) {
-        return res.status(400).json({
-            message: "Device ID is required.",
-            success: false
-        });
-    }
-
-    try {
-        const device = await Device.findById(deviceId);
-
-        if (!device) {
-            return res.status(404).json({
-                message: "Device not found.",
-                success: false
-            });
-        }
-
-        // If this is a confirmation from the ESP32
-        if (confirmed === true) {
-            device.lastConfirmed = new Date();
-            device.isConfirmed = true;
-            await device.save();
-
-            return res.status(200).json({
-                message: "Device state confirmation received.",
-                success: true
-            });
-        }
-
-        // If this is a command from the web app to change the device state
-        const newStatus = state ? 'on' : 'off';
-        device.status = newStatus;
-        device.isConfirmed = false;
-        device.lastUpdated = new Date();
-
-        await device.save();
-
-        res.status(200).json({
-            message: `Device state updated to '${newStatus}'`,
-            device,
-            success: true
-        });
-    } catch (err) {
-        console.error("Error updating device control:", err);
-        res.status(500).json({
-            message: "Internal server error.",
-            success: false
-        });
-    }
-};
+//add the changeDeviceStatus function like if esp is on then do manually off and no /validatedevice it will directly handle appliences. 
 
 
-export const changeDeviceStatus = async (req, res) => {
-    const { roomId, deviceId } = req.params;
-
-    if (!roomId || !deviceId) {
-        return res.status(400).json({ message: "Room ID and Device ID are required...", success: false });
-    }
-
-    try {
-        const room = await Room.findById(roomId).populate('devices');
-        if (!room) {
-            return res.status(404).json({
-                message: "Room not found. Please try again with different credentials...",
-                success: false
-            });
-        }
-
-        const device = room.devices.find(device => device._id.toString() === deviceId);
-        if (!device) {
-            return res.status(404).json({
-                message: "Device not found in this room...",
-                success: false
-            });
-        }
-
-        const newStatus = device.status === 'on' ? 'off' : 'on';
-
-        // Update the device status
-        device.status = newStatus;
-        device.isConfirmed = false;  // Mark as unconfirmed until ESP32 confirms
-        device.lastUpdated = new Date();
-
-        await device.save();
-
-        res.status(200).json({
-            message: `Device status toggled successfully to '${newStatus}'`,
-            device,
-            success: true,
-        });
-    } catch (err) {
-        console.error("Error toggling device status:", err);
-        res.status(500).json({
-            message: "Error toggling device status",
-            error: err.message,
-            success: false,
-        });
-    }
-};
 
 
