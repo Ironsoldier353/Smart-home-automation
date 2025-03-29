@@ -6,16 +6,26 @@ const DeviceSchema = new Schema({
         required: true,
         unique: true
     },
-    ssid: String,
-    password: String,
-    name: String,
+    ssid: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
     room: {
         type: Schema.Types.ObjectId,
-        ref: 'Room'
+        ref: 'Room',
+        required: true
     },
     status: {
         type: String,
-        enum: ['on', 'off', 'pending'],
+        enum: ['on', 'off', 'pending', 'active'],
         default: 'off'
     },
     isConfirmed: {
@@ -23,12 +33,14 @@ const DeviceSchema = new Schema({
         default: false
     },
     lastConfirmed: {
-        type: Date
+        type: Date,
+        default: null
     },
     lastUpdated: {
-        type: Date
+        type: Date,
+        default: Date.now
     },
-    appliences: [{
+    appliances: [{
         type: Schema.Types.ObjectId,
         ref: 'Appliance'
     }]
