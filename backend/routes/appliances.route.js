@@ -1,11 +1,31 @@
 import express from 'express';
-import { getAllAppliances, getAppliancesByDeviceId, updateApplianceState } from '../controllers/appliances.controller.js';
+import {
+    getAllAppliances,
+    getAppliancesByDeviceId,
+    getAppliancesByRoomId,
+    updateApplianceState,
+    renameAppliance,
+    deleteAppliance
+} from '../controllers/appliances.controller.js';
 
 const router = express.Router();
 
-// Use consistent base route for appliance endpoints
-router.get('/', getAllAppliances);  // Get all appliances
-router.get('/device/:deviceId', getAppliancesByDeviceId);  // Get appliances by device ID
-router.put('/:id/state', updateApplianceState);  // Update an appliance's state
+// Get all appliances
+router.get('/', getAllAppliances);
+
+// Get appliances by device ID
+router.get('/device/:deviceId', getAppliancesByDeviceId);
+
+// Get appliances by room ID
+router.get('/room/:roomId', getAppliancesByRoomId);
+
+// Update appliance state (on/off)
+router.patch('/:id/state', updateApplianceState);
+
+// Rename an appliance
+router.patch('/:id/rename', renameAppliance);
+
+// Delete an appliance
+router.delete('/:id', deleteAppliance);
 
 export default router;

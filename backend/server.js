@@ -46,3 +46,5 @@ app.use('/api/v1/devices', deviceRoutes);
 import appliancesRoutes from './routes/appliances.route.js';
 app.use('/api/v1/appliances', appliancesRoutes);
 
+import recipeRoutes from './routes/recipe.route.js';
+app.use('/api/v1/recipes', recipeRoutes);
